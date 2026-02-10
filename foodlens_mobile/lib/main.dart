@@ -37,6 +37,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   File? _image;
   bool _isLoading = false;
   List<dynamic> _results = [];
+  
+  // ignore: unused_field
   String _ocrText = "";
 
   // SENİN CANLI CLOUD RUN ADRESİN
@@ -44,15 +46,34 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
+  // --- FOTOĞRAF SEÇME VE OPTİMİZASYON ---
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(source: source);
+      // BURASI KRİTİK: Hem Kamera hem Galeri için optimizasyon yapıyoruz
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 2160,   // Genişliği 1080 pikselle sınırla (Full HD yeterli)
+        maxHeight: 3840,  // Yüksekliği sınırla
+        imageQuality: 90, // Kaliteyi %85'e çek (Dosya boyutu küçülür, hız artar)
+      );
+
       if (pickedFile != null) {
         setState(() {
           _image = File(pickedFile.path);
           _results = []; // Eski sonuçları temizle
           _ocrText = "";
         });
+        
+        // Kullanıcıya bilgi verelim
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(
+               content: Text("Fotoğraf optimize ediliyor ve taranıyor... ⏳"), 
+               duration: Duration(seconds: 1),
+             )
+           );
+        }
+
         // Resmi seçince otomatik işle
         _processImage();
       }
@@ -61,7 +82,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
-  // --- AKILLI FİLTRELEME MOTORU BURADA ---
+  // --- AKILLI FİLTRELEME VE OCR MOTORU ---
   Future<void> _processImage() async {
     if (_image == null) return;
 
@@ -91,14 +112,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       int indexEN = lowerText.indexOf("ingredients");
 
       if (indexTR != -1) {
-        // "İçindekiler:" yazısını da dahil ederek kesiyoruz
         processedText = rawText.substring(indexTR); 
       } else if (indexEN != -1) {
         processedText = rawText.substring(indexEN);
       }
 
       // 3. ADIM: "YOKTUR/İÇERMEZ" TUZAĞINI TEMİZLE
-      // Metni satırlara bölüp, içinde "yoktur" geçen satırları eliyoruz.
       List<String> lines = processedText.split('\n');
       List<String> cleanLines = [];
       
@@ -113,10 +132,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         }
       }
       
-      // Temizlenmiş metni tekrar birleştir
       String finalText = cleanLines.join("\n");
-
-      // Ekranda ne okuduğunu görelim (Debug için)
       setState(() => _ocrText = finalText);
 
       // 4. ADIM: Metni API'ye Gönder
@@ -129,6 +145,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
+  // --- SUNUCUYA GÖNDERME ---
   Future<void> _analyzeWithApi(String text) async {
     try {
       final response = await http.post(
@@ -138,7 +155,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       );
 
       if (response.statusCode == 200) {
-        // Türkçe karakter sorununu çözmek için utf8.decode kullanıyoruz
+        // Türkçe karakterler için utf8 decode
         final data = jsonDecode(utf8.decode(response.bodyBytes)); 
         setState(() {
           _results = data['results'];
@@ -155,7 +172,44 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+    }
+  }
+
+  // --- AÇIKLAMA PENCERESİ (POP-UP) ---
+  void _showDescriptionDialog(BuildContext context, String title, String description) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  description.isNotEmpty 
+                    ? description 
+                    : "Bu madde için detaylı açıklama bulunmamaktadır.",
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Tamam"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Pencereyi kapat
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Color _getRiskColor(String risk) {
@@ -167,11 +221,20 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
+  Color _getIconColor(String risk) {
+    switch (risk.toLowerCase()) {
+      case 'high': return Colors.red;
+      case 'moderate': return Colors.orange;
+      case 'low': return Colors.green;
+      default: return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("FoodLens AI 🔍", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text("FoodLens AI", style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.green.shade100,
       ),
@@ -221,9 +284,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           if (_results.isNotEmpty)
              Padding(
                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-               child: Align(
-                 alignment: Alignment.centerLeft, // Hata düzeltildi
-                 child: Text("Tespit Edilenler (${_results.length})", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+               child: const Align(
+                 alignment: Alignment.centerLeft,
+                 child: Text("Tespit Edilenler (Detay için tıkla)", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                ),
              ),
 
@@ -234,7 +297,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 : _results.isEmpty
                     ? Center(
                         child: Text(
-                          _image == null ? "" : "Riskli madde bulunamadı ✅",
+                          _image == null ? "" : "Riskli madde bulunamadı",
                           style: const TextStyle(color: Colors.grey),
                         ),
                       )
@@ -252,12 +315,21 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                 backgroundColor: Colors.white,
                                 child: Icon(
                                   item['risk_level'] == 'High' ? Icons.warning : Icons.check,
-                                  color: item['risk_level'] == 'High' ? Colors.red : Colors.green,
+                                  color: _getIconColor(item['risk_level']),
                                 ),
                               ),
                               title: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
                               subtitle: Text("Risk: ${item['risk_level']}"),
-                              trailing: Text("%${item['match_score']}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                              trailing: const Icon(Icons.info_outline, color: Colors.black54),
+                              
+                              // TIKLAMA İŞLEMİ BURADA
+                              onTap: () {
+                                _showDescriptionDialog(
+                                  context, 
+                                  item['name'], 
+                                  item['description'] ?? "" 
+                                );
+                              },
                             ),
                           );
                         },
