@@ -3,3 +3,4 @@ uvicorn
 pydantic
 rapidfuzz
 requests
+rapidfuzz

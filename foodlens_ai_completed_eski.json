@@ -8036,19 +8036,17 @@
         {
             "id": "E350I",
             "name_tr": "E350i - Sodium malate",
-            "name_en": "Sodium malate",
+            "name_en": "E350i - Sodium malate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q836788",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e350i",
                 "e350i - sodium malate",
                 "e350i - sodium malate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Asitliği düzenleyici ve tatlandırıcı olarak kullanılır. Genellikle güvenli kabul edilir ve düşük risklidir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "E958",
@@ -10504,19 +10502,17 @@
         {
             "id": "E170Ii",
             "name_tr": "E170ii - Calcium hydrogen carbonate",
-            "name_en": "Calcium hydrogen carbonate",
+            "name_en": "E170ii - Calcium hydrogen carbonate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q415144",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e170ii",
                 "e170ii - calcium hydrogen carbonate",
                 "e170ii - calcium hydrogen carbonate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Asitliği düzenleyici, topaklanmayı önleyici ve mineral tuz olarak kullanılır. Doğal bir mineraldir ve genellikle güvenlidir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "E304",
@@ -10711,19 +10707,17 @@
         {
             "id": "E504Ii",
             "name_tr": "E504ii - Magnesium hydroxide carbonate",
-            "name_en": "Magnesium hydroxide carbonate",
+            "name_en": "E504ii - Magnesium hydroxide carbonate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q407931",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e504ii",
                 "e504ii - magnesium hydroxide carbonate",
                 "e504ii - magnesium hydroxide carbonate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Asitliği düzenleyici ve topaklanmayı önleyici olarak kullanılır. Magnezyum kaynağıdır ve düşük riskli kabul edilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "E104",
@@ -10796,36 +10790,32 @@
         {
             "id": "E160E",
             "name_tr": "E160e - Beta-apo-8′-carotenal (c30)",
-            "name_en": "Beta-apo-8'-carotenal (C30)",
+            "name_en": "E160e - Beta-apo-8′-carotenal (c30)",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e160e",
                 "e160e - beta-apo-8′-carotenal (c30)",
                 "e160e - beta-apo-8′-carotenal (c30)"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Turuncu-sarı renk verici olarak kullanılan sentetik bir karotenoiddir. Yüksek dozlarda tüketilmediği sürece güvenli kabul edilir.",
-            "ai_processed": true
+            "dietary_status": "Vegan"
         },
         {
             "id": "E640Ii",
             "name_tr": "Sodyum glisinat",
-            "name_en": "Sodium glycinate",
+            "name_en": "E640ii - Sodiumglycinate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q18967228",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e640ii",
                 "e640ii - sodyum glisinat",
                 "e640ii - sodiumglycinate"
             ],
-            "dietary_status": "Unknown",
-            "description_tr": "Tatlandırıcı ve aroma arttırıcı olarak kullanılır. Glisinden türetilir ve genellikle düşük riskli olarak değerlendirilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Exxx",
@@ -10934,19 +10924,17 @@
         {
             "id": "E905E",
             "name_tr": "E905e - Mineral oil medium viscosity",
-            "name_en": "Mineral oil medium viscosity",
+            "name_en": "E905e - Mineral oil medium viscosity",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q579764",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e905e",
                 "e905e - mineral oil medium viscosity",
                 "e905e - mineral oil medium viscosity"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Kaplama maddesi, parlatıcı ve kıvam arttırıcı olarak kullanılır. Rafine edilmemiş formları sağlık riski oluşturabilir, bu nedenle kullanımı sınırlıdır.",
-            "ai_processed": true
+            "dietary_status": "Vegan"
         },
         {
             "id": "E451",
@@ -11004,19 +10992,17 @@
         {
             "id": "E304I",
             "name_tr": "E304i - Ascorbyl palmitate",
-            "name_en": "Ascorbyl palmitate",
+            "name_en": "E304i - Ascorbyl palmitate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q424521",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e304i",
                 "e304i - ascorbyl palmitate",
                 "e304i - ascorbyl palmitate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Antioksidan ve C vitamini kaynağı olarak kullanılır. Genellikle güvenli kabul edilir ve yağda çözünen bir E vitamini formudur.",
-            "ai_processed": true
+            "dietary_status": "Vegan"
         },
         {
             "id": "E337",
@@ -11660,36 +11646,32 @@
         {
             "id": "E500I",
             "name_tr": "Sodyum karbonat",
-            "name_en": "Sodium carbonate",
+            "name_en": "E500i - Sodium carbonate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q190227",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e500i",
                 "e500i - sodyum karbonat",
                 "e500i - sodium carbonate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Asitliği düzenleyici ve topaklanmayı önleyici olarak kullanılır. Sodyum içeriği nedeniyle yüksek tüketimde dikkatli olunmalıdır.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "E335I",
             "name_tr": "E335i - Monosodium tartrate",
-            "name_en": "Monosodium tartrate",
+            "name_en": "E335i - Monosodium tartrate",
             "type": "additive",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q836451",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "e335i",
                 "e335i - monosodium tartrate",
                 "e335i - monosodium tartrate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Asitliği düzenleyici, stabilizatör ve tatlandırıcı olarak kullanılır. Üzümlerden elde edilir ve genellikle güvenlidir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "E904",
@@ -39485,26 +39467,22 @@
                 "breast",
                 "breast"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Bu bir gıda katkı maddesi değildir; doğal bir gıda bileşenini (tavuk/tavuk göğsü gibi) ifade ediyor olabilir. Risk değerlendirmesi katkı maddesi kategorisine uygun değildir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Cow S Milk",
             "name_tr": "Inek sütü",
-            "name_en": "Cow's Milk",
+            "name_en": "Cow's milk",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "cow s milk",
                 "inek sütü",
                 "cow's milk"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Hayvansal bir süt ürünüdür, temel besin kaynağı olarak kullanılır ancak laktoz intoleransı veya süt alerjisi olan kişiler için sorun yaratabilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Grk Bijeli",
@@ -39512,16 +39490,14 @@
             "name_en": "Grk Bijeli",
             "type": "ingredient",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q1547141",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "grk bijeli",
                 "grk bijeli",
                 "grk bijeli"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Hırvatistan kökenli bir peynir türüdür, hayvansal sütten üretilir ve genellikle tuz içeriği yüksek olabilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Capelin",
@@ -39529,118 +39505,104 @@
             "name_en": "Capelin",
             "type": "ingredient",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q143359",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "capelin",
                 "capelin",
                 "capelin"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Küçük bir balık türüdür, genellikle tütsülenmiş, kurutulmuş veya un haline getirilerek kullanılır. Yüksek omega-3 yağ asitleri içerir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Foie Gras D Oie",
             "name_tr": "Foie Gras D Oie",
-            "name_en": "Goose Foie Gras",
+            "name_en": "Foie Gras D Oie",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "foie gras d oie",
                 "foie gras d oie",
                 "foie gras d oie"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Kaz ciğerinden yapılan, zorla besleme (gavage) yöntemiyle üretilen ve hayvan refahı endişeleri nedeniyle tartışmalı bir lüks gıdadır.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Jus Concentre De Celeri Et De Carotte",
             "name_tr": "Jus Concentre De Celeri Et De Carotte",
-            "name_en": "Concentrated Celery and Carrot Juice",
+            "name_en": "Jus Concentre De Celeri Et De Carotte",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "jus concentre de celeri et de carotte",
                 "jus concentre de celeri et de carotte",
                 "jus concentre de celeri et de carotte"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Kereviz ve havuç suyunun konsantresidir, doğal bir aroma ve renk verici olarak kullanılır, genellikle güvenli kabul edilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Bleu De Gex",
             "name_tr": "Bleu de gex",
-            "name_en": "Bleu de Gex",
+            "name_en": "Bleu de gex",
             "type": "ingredient",
             "wikidata_ref": "https://www.wikidata.org/wiki/Q1231078",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "bleu de gex",
                 "bleu de gex",
                 "bleu de gex"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Fransa'ya özgü, inek sütünden yapılan mavi damarlı bir peynirdir, küf kültürleri içerir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Legume Deshydrate",
             "name_tr": "Legume Deshydrate",
-            "name_en": "Dehydrated Vegetables",
+            "name_en": "Legume Deshydrate",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "legume deshydrate",
                 "legume deshydrate",
                 "legume deshydrate"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Kurutulmuş sebzelerdir, raf ömrünü uzatmak ve hacmini azaltmak için kullanılır, besin değeri taze sebzelere göre daha düşük olabilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Sugar Free Dark Chocolate Chunks",
             "name_tr": "Sugar free dark chocolate chunks",
-            "name_en": "Sugar Free Dark Chocolate Chunks",
+            "name_en": "Sugar free dark chocolate chunks",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "sugar free dark chocolate chunks",
                 "sugar free dark chocolate chunks",
                 "sugar free dark chocolate chunks"
             ],
-            "dietary_status": "Vegan",
-            "description_tr": "Şeker eklenmemiş bitter çikolata parçalarıdır, genellikle şeker alkolleri veya yapay tatlandırıcılar içerebilir, bu da bazı kişilerde sindirim sorunlarına yol açabilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Chocolate And White Chocolate",
             "name_tr": "Chocolate and white chocolate",
-            "name_en": "Chocolate and White Chocolate",
+            "name_en": "Chocolate and white chocolate",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "chocolate and white chocolate",
                 "chocolate and white chocolate",
                 "chocolate and white chocolate"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Kakao, kakao yağı, şeker ve süt ürünleri içeren karışımlardır. Beyaz çikolata kakao katıları içermez. Yüksek şeker ve yağ içeriğine sahiptir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Fromage Frais Au Lait Pasteurise",
@@ -41409,19 +41371,17 @@
         {
             "id": "Miel De Carotte Sauvage",
             "name_tr": "Miel De Carotte Sauvage",
-            "name_en": "Wild Carrot Honey",
+            "name_en": "Miel De Carotte Sauvage",
             "type": "ingredient",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "ingredients",
             "keywords": [
                 "miel de carotte sauvage",
                 "miel de carotte sauvage",
                 "miel de carotte sauvage"
             ],
-            "dietary_status": "Not Vegan",
-            "description_tr": "Yabani havuç çiçeklerinden toplanan baldır, arılar tarafından üretilen doğal bir tatlandırıcıdır, bir yaşın altındaki bebekler için risk oluşturabilir.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Algae",
@@ -95578,9 +95538,7 @@
                 "bogdanuša",
                 "bogdanuša"
             ],
-            "dietary_status": "Unknown",
-            "description_tr": "Bu bir gıda katkı maddesi kodu değildir; muhtemelen bir ürün veya çeşit adıdır. Risk değerlendirmesi yapılamaz.",
-            "ai_processed": true
+            "dietary_status": "Unknown"
         },
         {
             "id": "Teriyaki Sauce",
@@ -97041,9 +96999,9 @@
         {
             "id": "E160(A)",
             "name_tr": "Karoten, alfa-, beta-, gamma-",
-            "name_en": "Carotenes, alpha-, beta-, gamma-",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Renklendirici; insan vücudu onu karaciğerde 'A Vitamin'ine dönüştürür; havuçta, turunçgillerde ve sebzelerde bulunur; tereyağ, margarin, kek, sütlü içecekler ve meyve sularında kullanılır; bazı üreticilerin stabilizatör olarak jelatin kullandıkları bilinmektedir.",
             "keywords": [
                 "E160(A)",
@@ -97052,15 +97010,14 @@
                 "karoten, alfa-, beta-, gamma-"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E160(B)",
             "name_tr": "Annatto (Arnatto, Annato), bixin, norbixin",
-            "name_en": "Annatto, bixin, norbixin",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Renklendirici; 'Bixaorellana' ağacından elde edilir; peynir, tereyağı, margarin,unlu gıdalar, çerez, çorba ve içeceklerde kullanılmaktadır; ayrıca eczacılıkta (balgam sökücü olarak) ve tekstil sektöründe kullanılır;jelatinle karışık bulunabilir; kurdeşene neden olduğu bilinir, HACSG² sakınılmasını öneriyor.",
             "keywords": [
                 "E160(B)",
@@ -97069,15 +97026,14 @@
                 "annatto (arnatto, annato), bixin, norbixin"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E160(C)",
             "name_tr": "Paprika ekstrakt, Kapsanthin, Kapsorubin",
-            "name_en": "Paprika extract, Capsanthin, Capsorubin",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Renklendirici; kırmızı biber çekirdek ve tohumlarından elde edilir; kümes hayvanı gıdaları, dilinmiş peynirlerde kullanılır; jelatinle karışık bulunabilir; bazı ülkelerde yasaklandı.",
             "keywords": [
                 "E160(C)",
@@ -97086,15 +97042,14 @@
                 "paprika ekstrakt, kapsanthin, kapsorubin"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E160(D)",
             "name_tr": "Likopen",
-            "name_en": "Lycopene",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Renklendirici; domates ve pembe greyfurttan üretilir; kanser riskini azaltabilir; jelatinle karışık bulunabilir.",
             "keywords": [
                 "E160(D)",
@@ -97103,15 +97058,14 @@
                 "likopen"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E160(E)",
             "name_tr": "Beta-apo-8'Karotenal\n(C 30)",
-            "name_en": "Beta-apo-8'-carotenal (C30)",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Renklendirici; sentetik;dilimlenmiş peynirde kullanılır; bilinen yan etkisi yok; jelatinle karışık bulunabilir.",
             "keywords": [
                 "E160(E)",
@@ -97120,15 +97074,14 @@
                 "beta-apo-8'karotenal\n(c 30)"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E160(F)",
             "name_tr": "Etil ester of beta-apo-8'-karotenik asid (C 30)",
-            "name_en": "Ethyl ester of beta-apo-8'-carotenoic acid (C30)",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Renklendirici, bilinen yan etkisi yok; alkolle muamele edilmiş olabilir.",
             "keywords": [
                 "E160(F)",
@@ -97137,15 +97090,14 @@
                 "etil ester of beta-apo-8'-karotenik asid (c 30)"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E306, E307,\nE308, E309",
             "name_tr": "Tokoferoller",
-            "name_en": "Tocopherols",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Antioksidan. 'E vitamini'; soya, buğday, pirinç, pamuk tohumu, mısır gibi birçok sebzenin ve hayvanların yağında bulunur; margarin ve salata soslarında, ilaç ve kozmetik ürünlerinde kullanılır.",
             "keywords": [
                 "E306, E307,\nE308, E309",
@@ -97154,15 +97106,14 @@
                 "tokoferoller"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E440(A)",
             "name_tr": "Pektin",
-            "name_en": "Pectin",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Kıvam artırıcı.Doğal olarak elma kabuğunda bulunur; koyulaştırılmış reçel, jöle ve soslarda kullanılır; büyük miktarlar geçici mide gazı veya bağırsak rahatsızlığına neden olabilir",
             "keywords": [
                 "E440(A)",
@@ -97171,15 +97122,14 @@
                 "pektin"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E440(B)",
             "name_tr": "Amine edilmiş pektin",
-            "name_en": "Amidated pectin",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Kıvam artırıcı.",
             "keywords": [
                 "E440(B)",
@@ -97188,15 +97138,14 @@
                 "amine edilmiş pektin"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E480",
             "name_tr": "Dioktil sodyum sulfosukkinat",
-            "name_en": "Dioctyl sodium sulfosuccinate",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Homojenleştirici.",
             "keywords": [
                 "E480",
@@ -97205,15 +97154,14 @@
                 "dioktil sodyum sulfosukkinat"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E553(A)",
             "name_tr": "Magnezyum silikatlar",
-            "name_en": "Magnesium silicates",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Tabaka önleyici.Bazı ülkelerde yasaklandı",
             "keywords": [
                 "E553(A)",
@@ -97222,15 +97170,14 @@
                 "magnezyum silikatlar"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E553(B)",
             "name_tr": "Talk",
-            "name_en": "Talc",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "description_tr": "Tabaka önleyici.Allerjik reaksiyonlara ve mide kanserine sebep olabilir. Parlatılmış pirinç, çikolata, şekerlemelerde kullanılıyor.",
             "keywords": [
                 "E553(B)",
@@ -97239,15 +97186,14 @@
                 "talk"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E1400-E1450",
             "name_tr": "Nişastalar ve türevleri",
-            "name_en": "Modified starches",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Tatlandırıcı,kıvam artırıcı.",
             "keywords": [
                 "E1400-E1450",
@@ -97256,15 +97202,14 @@
                 "nişastalar ve türevleri"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E1517 E1518",
             "name_tr": "Gliserol asetatlar",
-            "name_en": "Glyceryl diacetate (diacetin) and Glyceryl triacetate (triacetin)",
+            "name_en": "",
             "type": "additive",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "description_tr": "Nem tutucu ve çözücü; Amerika'da taze meyveleri kaplamak için kullanılır",
             "keywords": [
                 "E1517 E1518",
@@ -97273,8 +97218,7 @@
                 "gliserol asetatlar"
             ],
             "source": "manual_csv_import",
-            "ai_processed": true,
-            "dietary_status": "Vegan"
+            "ai_processed": false
         },
         {
             "id": "E600",
@@ -97317,10 +97261,10 @@
         {
             "id": "E150a",
             "name_tr": "Sade karamel(1)",
-            "name_en": "Plain caramel",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E150a",
@@ -97328,18 +97272,18 @@
                 "e-150a",
                 "sade karamel(1)"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E150b",
             "name_tr": "Kostik sülfit karamel",
-            "name_en": "Caustic sulphite caramel",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E150b",
@@ -97347,18 +97291,18 @@
                 "e-150b",
                 "kostik sülfit karamel"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E150c",
             "name_tr": "Amonyak karamel",
-            "name_en": "Ammonia caramel",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E150c",
@@ -97366,18 +97310,18 @@
                 "e-150c",
                 "amonyak karamel"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E150d",
             "name_tr": "Amonyum sülfit karamel",
-            "name_en": "Ammonium sulphite caramel",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E150d",
@@ -97385,18 +97329,18 @@
                 "e-150d",
                 "amonyum sülfit karamel"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E160a",
             "name_tr": "Karotenler",
-            "name_en": "Carotenes",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E160a",
@@ -97404,18 +97348,18 @@
                 "e-160a",
                 "karotenler"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E160b",
             "name_tr": "Anatto, Biksin, Norbiksin",
-            "name_en": "Annatto, Bixin, Norbixin",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E160b",
@@ -97423,18 +97367,18 @@
                 "e-160b",
                 "anatto, biksin, norbiksin"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E160c",
             "name_tr": "Paprika ekstraktı, kapsantin, kapsorubin",
-            "name_en": "Paprika extract, capsanthin, capsorubin",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E160c",
@@ -97442,18 +97386,18 @@
                 "e-160c",
                 "paprika ekstraktı, kapsantin, kapsorubin"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E160d",
             "name_tr": "Likopen",
-            "name_en": "Lycopene",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E160d",
@@ -97461,18 +97405,18 @@
                 "e-160d",
                 "likopen"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E160e",
             "name_tr": "Beta-apo-8’-karotenal (C 30)",
-            "name_en": "Beta-apo-8'-carotenal (C 30)",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E160e",
@@ -97480,18 +97424,18 @@
                 "e-160e",
                 "beta-apo-8’-karotenal (c 30)"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E161b",
             "name_tr": "Lutein",
-            "name_en": "Lutein",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E161b",
@@ -97499,18 +97443,18 @@
                 "e-161b",
                 "lutein"
             ],
-            "dietary_status": "Not Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E161g",
             "name_tr": "Kantaksantin",
-            "name_en": "Canthaxanthin",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E161g",
@@ -97518,18 +97462,18 @@
                 "e-161g",
                 "kantaksantin"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E407a",
             "name_tr": "İşlenmiş eucheuma deniz yosunu",
-            "name_en": "Processed eucheuma seaweed",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E407a",
@@ -97537,18 +97481,18 @@
                 "e-407a",
                 "i̇şlenmiş eucheuma deniz yosunu"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E423",
             "name_tr": "Gam arabikle modifiye edilmiş oktenil süksinik asit",
-            "name_en": "Octenyl succinic acid modified gum arabic",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E423",
@@ -97556,18 +97500,18 @@
                 "e-423",
                 "gam arabikle modifiye edilmiş oktenil süksinik asit"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E456",
             "name_tr": "Potasyum poliaspartat",
-            "name_en": "Potassium polyaspartate",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E456",
@@ -97575,18 +97519,18 @@
                 "e-456",
                 "potasyum poliaspartat"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E470a",
             "name_tr": "Yağ asitlerinin sodyum, potasyum ve kalsiyum tuzları",
-            "name_en": "Sodium, potassium and calcium salts of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E470a",
@@ -97596,16 +97540,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E470b",
             "name_tr": "Yağ asitlerinin magnezyum tuzları",
-            "name_en": "Magnesium salts of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E470b",
@@ -97615,16 +97559,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E472a",
             "name_tr": "Yağ asitlerinin mono ve digliseritlerinin asetik asit esterleri",
-            "name_en": "Acetic acid esters of mono- and diglycerides of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E472a",
@@ -97634,16 +97578,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E472b",
             "name_tr": "Yağ asitlerinin mono ve digliseritlerinin laktik asit esterleri",
-            "name_en": "Lactic acid esters of mono- and diglycerides of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E472b",
@@ -97653,16 +97597,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E472c",
             "name_tr": "Yağ asitlerinin mono ve digliseritlerinin sitrik asit esterleri",
-            "name_en": "Citric acid esters of mono- and diglycerides of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E472c",
@@ -97670,18 +97614,18 @@
                 "e-472c",
                 "yağ asitlerinin mono ve digliseritlerinin sitrik asit esterleri"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E472d",
             "name_tr": "Yağ asitlerinin mono ve digliseritlerinin tartarik asit esterleri",
-            "name_en": "Tartaric acid esters of mono- and diglycerides of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E472d",
@@ -97691,16 +97635,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E472e",
             "name_tr": "Yağ asitlerinin mono ve digliseritlerinin mono- ve diasetil tartarik asit esterleri",
-            "name_en": "Mono- and diacetyl tartaric acid esters of mono- and diglycerides of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E472e",
@@ -97710,16 +97654,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E472f",
             "name_tr": "Yağ asitlerinin mono ve digliseritlerinin tartarik ve asetik asit karışımlarının esterleri",
-            "name_en": "Mixed tartaric, acetic and fatty acid esters of glycerol",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E472f",
@@ -97729,16 +97673,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E479b",
             "name_tr": "Yağ asitlerinin mono- ve digliseridleri ile reaksiyona girmiş, ısıl işlemle okside edilmiş soya fasulyesi yağı",
-            "name_en": "Thermally oxidized soya bean oil interacted with mono- and diglycerides of fatty acids",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E479b",
@@ -97746,18 +97690,18 @@
                 "e-479b",
                 "yağ asitlerinin mono- ve digliseridleri ile reaksiyona girmiş, ısıl işlemle okside edilmiş soya fasulyesi yağı"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E499",
             "name_tr": "Stigmasterol yönünden zengin bitki sterolleri",
-            "name_en": "Phytosterols, stigmasterol-rich",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E499",
@@ -97765,18 +97709,18 @@
                 "e-499",
                 "stigmasterol yönünden zengin bitki sterolleri"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E534",
             "name_tr": "Demir tartarat",
-            "name_en": "Ferrous tartrate",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E534",
@@ -97784,18 +97728,18 @@
                 "e-534",
                 "demir tartarat"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E553a",
             "name_tr": "Magnezyum silikat",
-            "name_en": "Magnesium silicate",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E553a",
@@ -97803,18 +97747,18 @@
                 "e-553a",
                 "magnezyum silikat"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E553b",
             "name_tr": "Talk",
-            "name_en": "Talc",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Moderate",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E553b",
@@ -97822,18 +97766,18 @@
                 "e-553b",
                 "talk"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E927b",
             "name_tr": "Karbamid",
-            "name_en": "Carbamide",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E927b",
@@ -97843,16 +97787,16 @@
             ],
             "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E943a",
             "name_tr": "Bütan",
-            "name_en": "Butane",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E943a",
@@ -97860,18 +97804,18 @@
                 "e-943a",
                 "bütan"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         },
         {
             "id": "E943b",
             "name_tr": "İzobütan",
-            "name_en": "Isobutane",
+            "name_en": "",
             "type": "additive",
             "wikidata_ref": "",
-            "risk_level": "Low",
+            "risk_level": "Unknown",
             "source_category": "additives",
             "keywords": [
                 "E943b",
@@ -97879,9 +97823,9 @@
                 "e-943b",
                 "i̇zobütan"
             ],
-            "dietary_status": "Vegan",
+            "dietary_status": "Unknown",
             "description_tr": "Gıda katkı maddesi.",
-            "ai_processed": true,
+            "ai_processed": false,
             "source": "gursahakman.com"
         }
     ]

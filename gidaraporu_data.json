@@ -1,0 +1,800 @@
+[
+    {
+        "id": "EDITOR'DEN",
+        "name_tr": "",
+        "name_en": "",
+        "keywords": [
+            "EDITOR'DEN",
+            "E-DITOR'DE-N",
+            ""
+        ],
+        "description_tr": "EDITOR'DEN",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "EDITOR'DEN",
+        "name_tr": "",
+        "name_en": "",
+        "keywords": [
+            "EDITOR'DEN",
+            "E-DITOR'DE-N",
+            ""
+        ],
+        "description_tr": "EDITOR'DEN",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E200",
+        "name_tr": "Sorbik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E200",
+            "E-200",
+            "sorbik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Bitkisel kÃ¶kenlidir. Ciltte kaÅŸÄ±ntÄ±ya sebep olabilir",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E201",
+        "name_tr": "Sodyum \r\n sorbat",
+        "name_en": "",
+        "keywords": [
+            "E201",
+            "E-201",
+            "sodyum \r\n sorbat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r.",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E202",
+        "name_tr": "Potasyum \r\n sorbat",
+        "name_en": "",
+        "keywords": [
+            "E202",
+            "E-202",
+            "potasyum \r\n sorbat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r.",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E203",
+        "name_tr": "Kalsiyum \r\n sorbat",
+        "name_en": "",
+        "keywords": [
+            "E203",
+            "E-203",
+            "kalsiyum \r\n sorbat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r.",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E210",
+        "name_tr": "Benzoik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E210",
+            "E-210",
+            "benzoik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. FÄ±rÄ±n mamulleri, peynir, Ã§iklet, Ã§eÅŸni, dondurulmuÅŸ \r\n mandÄ±ra Ã¼rÃ¼nleri, yumuÅŸak tatlÄ± gibi gÄ±da Ã¼rÃ¼nlerinde, kozmetik Ã¼rÃ¼nlerde, \r\n eczacÄ±lÄ±kta Ã¶ksÃ¼rÃ¼ÄŸe karÅŸÄ± antiseptik ve mantara karÅŸÄ± merhem yapÄ±mÄ±nda \r\n kullanÄ±lÄ±r. AstÄ±ma , sinirsel bozukluÄŸa, Â ve Ã§ocuklarda \r\n hiperaktiviteye neden olabilir.",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E211",
+        "name_tr": "Sodyum \r\n benzoat",
+        "name_en": "",
+        "keywords": [
+            "E211",
+            "E-211",
+            "sodyum \r\n benzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. SÃ¼t ve et Ã¼rÃ¼nleri, Ã§eÅŸniler, fÄ±rÄ±nlÄ± mamuller ve ÅŸekerlemelerde, \r\n aÄŸÄ±z yoluyla alÄ±nan bir Ã§ok ilaÃ§ta kullanÄ±lÄ±r; kurdeÅŸene neden olduÄŸu \r\n ve astÄ±mÄ± aÄŸÄ±rlaÅŸtÄ±rabilir.",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E212",
+        "name_tr": "Potasyum \r\n benzoat",
+        "name_en": "",
+        "keywords": [
+            "E212",
+            "E-212",
+            "potasyum \r\n benzoat"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 211",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E213",
+        "name_tr": "Calsiyum\nbenzoat",
+        "name_en": "",
+        "keywords": [
+            "E213",
+            "E-213",
+            "calsiyum\nbenzoat"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 212",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E214",
+        "name_tr": "Etil \r\n p-hidroksibenzoat",
+        "name_en": "",
+        "keywords": [
+            "E214",
+            "E-214",
+            "etil \r\n p-hidroksibenzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. \r\n BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E215",
+        "name_tr": "Sodyum \r\n etil p-hidroksibenzoat",
+        "name_en": "",
+        "keywords": [
+            "E215",
+            "E-215",
+            "sodyum \r\n etil p-hidroksibenzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E216",
+        "name_tr": "Propil \r\n p-hidroksibenzoat",
+        "name_en": "",
+        "keywords": [
+            "E216",
+            "E-216",
+            "propil \r\n p-hidroksibenzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Alerjik reaksiyonlara sebep olabilir.",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E217",
+        "name_tr": "Sodyum \r\n propil p-hidroksibenzoat",
+        "name_en": "",
+        "keywords": [
+            "E217",
+            "E-217",
+            "sodyum \r\n propil p-hidroksibenzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. \r\n BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E218",
+        "name_tr": "Metil \r\n p-hidroksibenzoat",
+        "name_en": "",
+        "keywords": [
+            "E218",
+            "E-218",
+            "metil \r\n p-hidroksibenzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Alerjik reaksiyonlara sebep olabilir.",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E219",
+        "name_tr": "Sodyum \r\n metil p-hidroksibenzoat",
+        "name_en": "",
+        "keywords": [
+            "E219",
+            "E-219",
+            "sodyum \r\n metil p-hidroksibenzoat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. \r\n BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E220",
+        "name_tr": "Sulfur \r\n dioksit",
+        "name_en": "",
+        "keywords": [
+            "E220",
+            "E-220",
+            "sulfur \r\n dioksit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. KÃ¶mÃ¼r katranÄ±ndan elde edilir. TÃ¼m sÃ¼lfÃ¼rlÃ¼ ilaÃ§lar \r\n zehirlidir ve kullanÄ±mÄ± sÄ±nÄ±rlandÄ±rÄ±lmÄ±ÅŸtÄ±r (Amerika'da, FDAÂ¹ Ã§iÄŸ meyve \r\n ve sebzelerde kullanÄ±mÄ±nÄ± yasaklamÄ±ÅŸtÄ±r); astÄ±m nÃ¶betlerini azdÄ±rdÄ±ÄŸÄ± \r\n ve bÃ¶brek fonksiyonlarÄ± zayÄ±flamÄ±ÅŸ olanlarda metabolizmayÄ± zorladÄ±ÄŸÄ±, \r\n 'B1 vitamini'ni yok ettiÄŸi bilinmektedir; iÃ§ecekler, kurutulmuÅŸ meyveler, \r\n meyve suyu,Â  sirke \r\n ve patates Ã¼rÃ¼nlerinde kullanÄ±lÄ±r.",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E221",
+        "name_tr": "Sodyum \r\n sulfit",
+        "name_en": "",
+        "keywords": [
+            "E221",
+            "E-221",
+            "sodyum \r\n sulfit"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 220",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E222",
+        "name_tr": "Sodyum \r\n hidrojen sulfit",
+        "name_en": "",
+        "keywords": [
+            "E222",
+            "E-222",
+            "sodyum \r\n hidrojen sulfit"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 220",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E223",
+        "name_tr": "Sodyum \r\n metabisulfit",
+        "name_en": "",
+        "keywords": [
+            "E223",
+            "E-223",
+            "sodyum \r\n metabisulfit"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 220",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E224",
+        "name_tr": "Potasyum \r\n metabisulfit",
+        "name_en": "",
+        "keywords": [
+            "E224",
+            "E-224",
+            "potasyum \r\n metabisulfit"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 220",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E225",
+        "name_tr": "Potasyum \r\n sulfit",
+        "name_en": "",
+        "keywords": [
+            "E225",
+            "E-225",
+            "potasyum \r\n sulfit"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 220",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E226",
+        "name_tr": "Kalsiyum \r\n sulfit",
+        "name_en": "",
+        "keywords": [
+            "E226",
+            "E-226",
+            "kalsiyum \r\n sulfit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. \r\n BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E227",
+        "name_tr": "Kalsiyum \r\n hidrojen sulfit",
+        "name_en": "",
+        "keywords": [
+            "E227",
+            "E-227",
+            "kalsiyum \r\n hidrojen sulfit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. \r\n BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E228",
+        "name_tr": "Potasyum \r\n bi sulfit",
+        "name_en": "",
+        "keywords": [
+            "E228",
+            "E-228",
+            "potasyum \r\n bi sulfit"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 220",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E230",
+        "name_tr": "Bifenil, \r\n Difenil",
+        "name_en": "",
+        "keywords": [
+            "E230",
+            "E-230",
+            "bifenil, \r\n difenil"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E231",
+        "name_tr": "2-Hidroksi bi fenol",
+        "name_en": "",
+        "keywords": [
+            "E231",
+            "E-231",
+            "2-hidroksi bi fenol"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E232",
+        "name_tr": "Sodyum \r\n ortofenil fenol",
+        "name_en": "",
+        "keywords": [
+            "E232",
+            "E-232",
+            "sodyum \r\n ortofenil fenol"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 231",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E233",
+        "name_tr": "Tiabendazol",
+        "name_en": "",
+        "keywords": [
+            "E233",
+            "E-233",
+            "tiabendazol"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E234",
+        "name_tr": "Nisin",
+        "name_en": "",
+        "keywords": [
+            "E234",
+            "E-234",
+            "nisin"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r.",
+        "risk_level": "Moderate",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir)",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E235",
+        "name_tr": "Natamisin",
+        "name_en": "",
+        "keywords": [
+            "E235",
+            "E-235",
+            "natamisin"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BulantÄ±, kusma, ishal ve cilt kaÅŸÄ±ntÄ±sÄ±na neden olur; \r\n et ve peynirÂ  Ã¼rÃ¼nlerinde \r\n kullanÄ±lÄ±r.",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E236",
+        "name_tr": "Formik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E236",
+            "E-236",
+            "formik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullan. \r\n BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E237",
+        "name_tr": "Sodyum \r\n format",
+        "name_en": "",
+        "keywords": [
+            "E237",
+            "E-237",
+            "sodyum \r\n format"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E238",
+        "name_tr": "Kalsiyum \r\n format",
+        "name_en": "",
+        "keywords": [
+            "E238",
+            "E-238",
+            "kalsiyum \r\n format"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E239",
+        "name_tr": "Hexamin",
+        "name_en": "",
+        "keywords": [
+            "E239",
+            "E-239",
+            "hexamin"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BazÄ± Ã¼lkelerde yasaklandÄ±",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E242",
+        "name_tr": "Dimetil\ndikarbonat",
+        "name_en": "",
+        "keywords": [
+            "E242",
+            "E-242",
+            "dimetil\ndikarbonat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Meyve sularÄ±na ilave edilen ve iÃ§indeki mikroplar ile \r\n mÃ¼cadele eden bir antimikrobiyel, FDAÂ¹nÄ±n veritabanÄ±nda gÄ±da ile \r\n iliÅŸkisi kabul edilen bir madde olarak listelenmiÅŸtir",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E249",
+        "name_tr": "Potasyum \r\n nitrit",
+        "name_en": "",
+        "keywords": [
+            "E249",
+            "E-249",
+            "potasyum \r\n nitrit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Et Ã¼rÃ¼nlerinde kullanÄ±lÄ±r. Nitritler \r\n nefes daralmasÄ±, baÅŸ dÃ¶nmesi ve baÅŸ aÄŸrÄ±sÄ± ile sonuÃ§lanabilecek \r\n rahatsÄ±zlÄ±klara sebep olduÄŸu gibi potansiyel kanserojendir; bebek ve kÃ¼Ã§Ã¼k \r\n Ã§ocuklarÄ±n gÄ±dalarÄ±nda kullanÄ±lmasÄ± kesinlikle yasaktÄ±r.",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E250",
+        "name_tr": "Sodyum \r\n nitrit",
+        "name_en": "",
+        "keywords": [
+            "E250",
+            "E-250",
+            "sodyum \r\n nitrit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Hiperaktiviteye ve diÄŸer \r\n yan etkilere neden olabilir, potansiyel kanserojendir, bir Ã§ok Ã¼lkede \r\n sÄ±nÄ±rlandÄ±rÄ±lmÄ±ÅŸtÄ±r, HACSGÂ² sakÄ±nÄ±lmasÄ±nÄ± Ã¶neriyor",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E251",
+        "name_tr": "Sodyum \r\n nitrat",
+        "name_en": "",
+        "keywords": [
+            "E251",
+            "E-251",
+            "sodyum \r\n nitrat"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 250",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E252",
+        "name_tr": "Potasyum \r\n nitrat",
+        "name_en": "",
+        "keywords": [
+            "E252",
+            "E-252",
+            "potasyum \r\n nitrat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Hayvan artÄ±klarÄ±ndan veya bitkilerdenelde edilir. GÃ¼bre Ã¼retiminde ve etin korunmasÄ±nda kullanÄ±lÄ±r; hiperaktiviteye ve diÄŸer yan \r\n etkilere sebep olabilir, potansiyel kanserojendir, bir Ã§ok Ã¼lkede sÄ±nÄ±rlandÄ±rÄ±lmÄ±ÅŸtÄ±r \r\n (BakÄ±nÄ±z: 249)",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E260",
+        "name_tr": "Asetik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E260",
+            "E-260",
+            "asetik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Sirkenin ana maddesidir; aÄŸaÃ§ liflerinden sentetik \r\n olarak Ã¼retilir; turÅŸu ve soslarda kullanÄ±lÄ±r",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E261",
+        "name_tr": "Potasyum \r\n asetat",
+        "name_en": "",
+        "keywords": [
+            "E261",
+            "E-261",
+            "potasyum \r\n asetat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BÃ¶brek fonksiyonlarÄ± zayÄ±f insanlar sakÄ±nmalÄ±dÄ±r; \r\n sos ve turÅŸularda kullanÄ±lÄ±r.",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E262",
+        "name_tr": "Sodyum \r\n asetat, Sodyum diasetat",
+        "name_en": "",
+        "keywords": [
+            "E262",
+            "E-262",
+            "sodyum \r\n asetat, sodyum diasetat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. AsitliÄŸi dÃ¼zenleyicidir; bilinen yan etkisi yok",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E263",
+        "name_tr": "Kalsiyum \r\n asetat",
+        "name_en": "",
+        "keywords": [
+            "E263",
+            "E-263",
+            "kalsiyum \r\n asetat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. AsitliÄŸi dÃ¼zenleyicidir.",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E264",
+        "name_tr": "Amonyum \r\n asetat",
+        "name_en": "",
+        "keywords": [
+            "E264",
+            "E-264",
+            "amonyum \r\n asetat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. BulantÄ± ve kusmaya neden olabilir",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E270",
+        "name_tr": "Laktik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E270",
+            "E-270",
+            "laktik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. AsitliÄŸi dÃ¼zenleyicidir; bebeklerin sindirimi zordur; \r\n tatlÄ±lar, salata sosu, bebe mamasÄ± ve ÅŸekerlemelerde kullanÄ±lÄ±r",
+        "risk_level": "High",
+        "source_notes": "Şüpheli (Bitkisel veya hayvansal olabilir), Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E280",
+        "name_tr": "Propiyonik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E280",
+            "E-280",
+            "propiyonik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Migren aÄŸrÄ±larÄ±na sebep olabilir; doÄŸal olarak mayalanmÄ±ÅŸ \r\n gÄ±dalarda, insan teri ve geviÅŸ getirenlerin sindirim organlarÄ±nda bulunur, \r\n ayrÄ±ca suni olarak etilen, karbon monoksit, propiyonaldehit, doÄŸal gaz, \r\n mayalanmÄ±ÅŸ kaÄŸÄ±t hamuru veya Ã§Ã¼rÃ¼mÃ¼ÅŸ lif bakterisinden elde edilir; yaygÄ±n \r\n olarak ekmek ve un mamullerinde kullanÄ±lÄ±r",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E281",
+        "name_tr": "Sodyum \r\n propiyonat",
+        "name_en": "",
+        "keywords": [
+            "E281",
+            "E-281",
+            "sodyum \r\n propiyonat"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. Migren aÄŸrÄ±larÄ±na sebep olabilir; unlu mamullerde kullanÄ±lÄ±r.",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E282",
+        "name_tr": "Kalsiyum \r\n propiyonat",
+        "name_en": "",
+        "keywords": [
+            "E282",
+            "E-282",
+            "kalsiyum \r\n propiyonat"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 281",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E283",
+        "name_tr": "Potasyum \r\n propiyonat",
+        "name_en": "",
+        "keywords": [
+            "E283",
+            "E-283",
+            "potasyum \r\n propiyonat"
+        ],
+        "description_tr": "BakÄ±nÄ±z: 281",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E290",
+        "name_tr": "Karbon \r\n dioksit",
+        "name_en": "",
+        "keywords": [
+            "E290",
+            "E-290",
+            "karbon \r\n dioksit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r.",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E296",
+        "name_tr": "Malik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E296",
+            "E-296",
+            "malik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n olarak kullanÄ±lÄ±r. doÄŸal (meyvelerden) veya sentetik yoldan elde edilir; \r\n bebekler ve kÃ¼Ã§Ã¼k Ã§ocuklar sakÄ±nmalÄ±dÄ±r",
+        "risk_level": "High",
+        "source_notes": "Sağlık için tehlikeli olabilir",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "E297",
+        "name_tr": "Fumarik \r\n asit",
+        "name_en": "",
+        "keywords": [
+            "E297",
+            "E-297",
+            "fumarik \r\n asit"
+        ],
+        "description_tr": "Koruyucu \r\n ve anti oksidan olarak kullanÄ±lÄ±r. Keklerde \r\n kullanÄ±lÄ±r",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "EDITOR'DEN",
+        "name_tr": "",
+        "name_en": "",
+        "keywords": [
+            "EDITOR'DEN",
+            "E-DITOR'DE-N",
+            ""
+        ],
+        "description_tr": "EDITOR'DEN",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "EDITOR'DEN",
+        "name_tr": "",
+        "name_en": "",
+        "keywords": [
+            "EDITOR'DEN",
+            "E-DITOR'DE-N",
+            ""
+        ],
+        "description_tr": "EDITOR'DEN",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "EDITOR'DEN",
+        "name_tr": "",
+        "name_en": "",
+        "keywords": [
+            "EDITOR'DEN",
+            "E-DITOR'DE-N",
+            ""
+        ],
+        "description_tr": "EDITOR'DEN",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    },
+    {
+        "id": "EDITOR'DEN",
+        "name_tr": "",
+        "name_en": "",
+        "keywords": [
+            "EDITOR'DEN",
+            "E-DITOR'DE-N",
+            ""
+        ],
+        "description_tr": "EDITOR'DEN",
+        "risk_level": "Low",
+        "source_notes": "",
+        "source": "gidaraporu.com"
+    }
+]

@@ -3,8 +3,9 @@ from pydantic import BaseModel
 import json
 import os
 import re
-from difflib import SequenceMatcher
 import logging
+# C++ tabanlı hızlı arama kütüphanesi
+from rapidfuzz import process, fuzz 
 
 # --- LOGLAMA AYARLARI ---
 logging.basicConfig(level=logging.INFO)
@@ -14,11 +15,31 @@ app = FastAPI()
 
 # --- AYARLAR ---
 DB_FILE = "foodlens_ai_completed.json"
-MATCH_THRESHOLD = 0.85  # %85 Benzerlik (OCR hatalarını tolere eder)
+MATCH_THRESHOLD = 85.0  # RapidFuzz 0-100 arası puan verir
 database = []
 
+# Hızlı Arama İndeksleri (RAM'de tutulacak)
+SEARCH_KEYS = []      # C++'ın tarayacağı saf metin listesi
+KEY_TO_ITEM_MAP = {}  # Metinden nesneye giden harita
+
+def clean_text(text):
+    if text is None: return ""
+    text = str(text)
+    
+    # 1. Önce Türkçe Karakter Sorununu Çöz (Elle Dönüştürme)
+    # Python standart lower() 'I' yı 'i' yapar, biz 'ı' istiyoruz.
+    text = text.replace('İ', 'i').replace('I', 'ı').replace('Ğ', 'ğ').replace('Ü', 'ü').replace('Ş', 'ş').replace('Ö', 'ö').replace('Ç', 'ç')
+    
+    # 2. Standart Küçük Harfe Çevir
+    text = text.lower()
+    
+    # 3. Temizlik (Noktalama işaretlerini sil)
+    text = text.replace('\n', ' ').replace(':', '').replace('.', '').replace(',', '')
+    
+    return text.strip()
+
 def load_database():
-    global database
+    global database, SEARCH_KEYS, KEY_TO_ITEM_MAP
     try:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(base_dir, DB_FILE)
@@ -36,78 +57,53 @@ def load_database():
             else:
                 database = []
         
-        logger.info(f"✅ VERİTABANI YÜKLENDİ: {len(database)} madde hazır.")
+        # C++ İÇİN İNDEKSLEME (SPEED BOOST)
+        SEARCH_KEYS = []
+        KEY_TO_ITEM_MAP = {}
+        
+        logger.info("Veritabanı indeksleniyor... Lütfen bekleyin.")
+        
+        for item in database:
+            # Aday kelimeleri topla: ID, TR İsim, EN İsim, Keywordler
+            candidates = set()
+            
+            if item.get("id"): candidates.add(item["id"])
+            if item.get("name_tr"): candidates.add(item["name_tr"])
+            if item.get("name_en"): candidates.add(item["name_en"])
+            
+            if item.get("keywords"):
+                for kw in item["keywords"]:
+                    if kw: candidates.add(kw)
+            
+            # Her bir adayı indekse ekle
+            for candidate in candidates:
+                clean_key = clean_text(candidate)
+                if len(clean_key) < 2: continue 
+                
+                SEARCH_KEYS.append(clean_key)
+                KEY_TO_ITEM_MAP[clean_key] = item
+                
+        logger.info(f"✅ VERİTABANI YÜKLENDİ: {len(database)} madde.")
+        logger.info(f"🚀 HIZLI ARAMA İNDEKSİ: {len(SEARCH_KEYS)} anahtar kelime hazır.")
             
     except Exception as e:
-        logger.error(f"Veritabanı Hatası: {e}")
+        logger.error(f"❌ Veritabanı Hatası: {e}")
         database = []
 
+# Uygulama başlarken yükle
 load_database()
 
 class ImageRequest(BaseModel):
     ocr_text: str
 
-def clean_text(text):
-    if text is None: return ""
-    text = re.sub(r'\([^)]*\)', '', text) # Parantezleri sil
-    text = text.replace('\n', ' ')
-    return text.strip().lower()
-
-def similarity_ratio(a, b):
-    return SequenceMatcher(None, a, b).ratio()
-
-def search_robust_match(fragment):
-    """
-    3 Aşamalı Öncelik Sistemi: TR > EN > Keyword
-    """
-    fragment_clean = clean_text(fragment)
-    
-    if len(fragment_clean) < 3: return None
-
-    best_match = None
-    best_score = 0
-
-    for item in database:
-        name_tr = item.get("name_tr", "")
-        name_en = item.get("name_en", "")
-        keywords = item.get("keywords", [])
-        risk = item.get("risk_level", "Unknown")
-        desc = item.get("description_tr", "Açıklama bulunamadı.")
-
-        candidates = [name_tr, name_en] + keywords
-        
-        for candidate in candidates:
-            if not candidate: continue
-            
-            score = similarity_ratio(fragment_clean, clean_text(candidate))
-            
-            if score >= MATCH_THRESHOLD:
-                if score > best_score:
-                    best_score = score
-                    # Her zaman Türkçe ismi tercih et
-                    display_name = name_tr if name_tr else name_en
-                    
-                    best_match = {
-                        "name": display_name,
-                        "risk_level": risk,
-                        "description": desc,
-                        "score": int(score * 100)
-                    }
-                    if score == 1.0: return best_match
-
-    return best_match
-
 def extract_relevant_section(text):
     """
-    MAHMUT'UN ALGORİTMASI:
-    1. 'İçindekiler' veya 'Ingredients' kelimesini bul.
-    2. O kelimeden sonraki ilk '.' (nokta) işaretine kadar al.
-    3. Eğer nokta bulamazsa (OCR hatası), metnin sonuna kadar al.
+    GÜNCELLENMİŞ ALGORİTMA:
+    'İçindekiler'den başla, 4. noktaya (.) kadar al.
+    Eğer 4 nokta yoksa, metnin sonuna kadar git.
     """
     text_lower = text.lower()
-    
-    # Başlangıç kelimeleri
-    start_keywords = ["içindekiler", "ingredients", "icindekiler"]
+    start_keywords = ["içindekiler", "ingredients", "icindekiler", "bileşenler"]
     
     start_index = -1
     for kw in start_keywords:
@@ -116,58 +112,86 @@ def extract_relevant_section(text):
             start_index = idx
             break
     
-    # Eğer anahtar kelime bulunamazsa metnin tamamını döndür (Fallback)
+    # Başlık bulunamazsa hepsini gönder
     if start_index == -1:
-        logger.warning("⚠️ 'İçindekiler' başlığı bulunamadı, tüm metin taranıyor.")
-        return text
+        return text 
 
     # Başlangıçtan sonrasını al
     relevant_part = text[start_index:]
     
-    # Nokta (.) kontrolü
-    dot_index = relevant_part.find('.')
+    # --- 4. NOKTAYI BULMA ALGORİTMASI ---
+    target_dot_count = 4   # Kaçıncı noktada duracak?
+    current_pos = 0        # Aramaya nereden başlayacağız?
+    found_index = -1       # Kesme noktamız
     
-    if dot_index != -1:
-        # Noktayı bulduk! Oraya kadar kes.
-        logger.info("Metin nokta (.) işaretinden kesildi.")
-        return relevant_part[:dot_index]
+    for _ in range(target_dot_count):
+        # current_pos'tan itibaren bir nokta ara
+        dot_idx = relevant_part.find('.', current_pos)
+        
+        if dot_idx != -1:
+            # Nokta bulundu, konumunu kaydet
+            found_index = dot_idx
+            # Bir sonraki aramayı bu noktadan 1 karakter sonra yap
+            current_pos = dot_idx + 1
+        else:
+            # Aradığımız kadar nokta yokmuş (metin bitti), döngüyü kır
+            break
+            
+    if found_index != -1:
+        # Bulunan son noktaya (4. veya metnin son noktasına) kadar kes
+        return relevant_part[:found_index]
     else:
-        # Nokta yoksa sonuna kadar devam
+        # Hiç nokta yoksa sonuna kadar al
         return relevant_part
 
 @app.post("/analyze")
 def analyze_image(request: ImageRequest):
     original_text = request.ocr_text
     
-    # 1. ADIM: İLGİLİ BÖLÜMÜ KESİP AL (NOKTA ALGORİTMASI)
+    # 1. İlgili Bölümü Kes
     targeted_text = extract_relevant_section(original_text)
     
-    logger.info(f"İŞLENECEK METİN: {targeted_text[:100]}...")
+    # 2. Metni Parçala
+    clean_ocr = targeted_text.replace('\n', ',').replace(':', ',').replace(';', ',').replace('•', ',')
 
-    # 2. ADIM: TEMİZLİK VE PARÇALAMA
-    # Satır sonlarını, iki noktayı ve noktalı virgülü virgüle çevir
-    clean_ocr = targeted_text.replace('\n', ',').replace(':', ',').replace(';', ',')
-    
-    raw_items = clean_ocr.split(',')
+    # YENİ EKLEME: Parantezleri virgüle çeviriyoruz
+    clean_ocr = clean_ocr.replace('(', ',').replace(')', ',').replace('[', ',').replace(']', ',').replace('{', ',').replace('}', ',')
+    raw_items = [x.strip() for x in clean_ocr.split(',')]
     
     results = []
-    seen_names = set()
+    seen_ids = set()
     
-    # 3. ADIM: ANALİZ
-    for item in raw_items:
-        item = item.strip()
-        if not item: continue
+    # 3. C++ TABANLI HIZLI ARAMA (RapidFuzz)
+    for item_text in raw_items:
+        if len(item_text) < 3 or len(item_text) > 50: continue 
         
-        # Kelime çok uzunsa (Örn: adres bilgisi karıştıysa) atla
-        if len(item) > 50: continue 
-
-        match = search_robust_match(item)
+        cleaned_query = clean_text(item_text)
+        
+        # RapidFuzz tüm listeyi C++ hızında tarar
+        match = process.extractOne(
+            cleaned_query, 
+            SEARCH_KEYS, 
+            scorer=fuzz.token_sort_ratio,
+            score_cutoff=MATCH_THRESHOLD
+        )
         
         if match:
-            if match["name"] not in seen_names:
-                results.append(match)
-                seen_names.add(match["name"])
-                logger.info(f"✅ BULUNDU: {match['name']}")
+            found_key = match[0]
+            score = match[1]
+            
+            db_item = KEY_TO_ITEM_MAP.get(found_key)
+            
+            if db_item and db_item["id"] not in seen_ids:
+                results.append({
+                    "id": db_item["id"],
+                    "name": db_item["name_tr"] if db_item.get("name_tr") else db_item.get("name_en"),
+                    "risk_level": db_item.get("risk_level", "Unknown"),
+                    "description": db_item.get("description_tr", ""),
+                    "dietary_status": db_item.get("dietary_status", "Unknown"),
+                    "match_score": int(score)
+                })
+                seen_ids.add(db_item["id"])
+                logger.info(f"BULUNDU: '{item_text}' -> {db_item['name_tr']} (%{score:.1f})")
 
     return {"results": results}
 
