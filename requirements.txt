@@ -1,6 +1,5 @@
-fastapi
+fastapi[standard]
 uvicorn
-pydantic
 rapidfuzz
-requests
-rapidfuzz
+sentence-transformers
+torch --index-url https://download.pytorch.org/whl/cpu
