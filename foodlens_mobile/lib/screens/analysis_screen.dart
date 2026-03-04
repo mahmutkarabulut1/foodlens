@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:http/http.dart' as http;
-import 'preferences_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Hafıza için eklendi
+import 'preferences_screen.dart'; // Sözlük verisi için gerekli
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({super.key});
@@ -17,14 +18,29 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   File? _image;
   bool _isLoading = false;
   List<dynamic> _results = [];
+  List<String> _activeAllergens = []; // Kullanıcının seçtiği aktif alerjenler
   
   // ignore: unused_field
   String _ocrText = "";
 
-  // SENİN CANLI CLOUD RUN ADRESİN
   final String apiUrl = "https://foodlens-api-592742840350.europe-west3.run.app/analyze";
-
   final ImagePicker _picker = ImagePicker();
+
+@override
+  void initState() {
+    super.initState();
+    _loadUserPreferences(); // İlk açılışta yükle
+  }
+
+
+  // FR-6: Kullanıcı tercihlerini hafızadan en hızlı şekilde yükler
+  Future<void> _loadUserPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _activeAllergens = prefs.getStringList('user_allergens') ?? [];
+    });
+  }
+
 
   // --- FOTOĞRAF SEÇME VE OPTİMİZASYON ---
   Future<void> _pickImage(ImageSource source) async {
@@ -62,63 +78,44 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
-  // --- AKILLI FİLTRELEME VE OCR MOTORU ---
+  // --- OCR VE İÇERİK FİLTRELEME ---
   Future<void> _processImage() async {
     if (_image == null) return;
-
     setState(() => _isLoading = true);
 
+
+
     try {
-      // 1. ADIM: OCR ile Metni Oku (Google ML Kit)
+      await _loadUserPreferences();
       final inputImage = InputImage.fromFile(_image!);
       final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
       final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
       
       String rawText = recognizedText.text;
       
-      // OCR boş dönerse uyar
       if (rawText.trim().isEmpty) {
-        _showError("Yazı okunamadı. Lütfen daha net bir fotoğraf çekin.");
+        _showError("Yazı okunamadı. Lütfen net bir fotoğraf çekin.");
         setState(() => _isLoading = false);
         return;
       }
 
-      // 2. ADIM: İÇİNDEKİLER FİLTRESİ
-      // Metni "içindekiler" kelimesinden itibaren kes
-      String processedText = rawText;
+      // İçindekiler filtresi
       String lowerText = rawText.toLowerCase();
-      
-      int indexTR = lowerText.indexOf("içindekiler");
-      int indexEN = lowerText.indexOf("ingredients");
+      int index = lowerText.indexOf("içindekiler");
+      if (index == -1) index = lowerText.indexOf("ingredients");
 
-      if (indexTR != -1) {
-        processedText = rawText.substring(indexTR); 
-      } else if (indexEN != -1) {
-        processedText = rawText.substring(indexEN);
-      }
+      String processedText = index != -1 ? rawText.substring(index) : rawText;
 
-      // 3. ADIM: "YOKTUR/İÇERMEZ" TUZAĞINI TEMİZLE
-      List<String> lines = processedText.split('\n');
-      List<String> cleanLines = [];
-      
-      for (String line in lines) {
-        String lowerLine = line.toLowerCase();
-        // Yasaklı kelimeler (Negation words) - Bunlar varsa o satırı sil
-        if (!lowerLine.contains("yoktur") && 
-            !lowerLine.contains("içermez") && 
-            !lowerLine.contains("free from") && 
-            !lowerLine.contains("no added")) {
-          cleanLines.add(line);
-        }
-      }
-     
+      // Negatif ifadeleri temizle (Yoktur/İçermez)
+      List<String> cleanLines = processedText.split('\n').where((line) {
+        String l = line.toLowerCase();
+        return !l.contains("yoktur") && !l.contains("içermez") && !l.contains("free from");
+      }).toList();
       
       String finalText = cleanLines.join("\n");
       setState(() => _ocrText = finalText);
 
-      // 4. ADIM: Metni API'ye Gönder
       await _analyzeWithApi(finalText);
-
       textRecognizer.close();
     } catch (e) {
       _showError("OCR Hatası: $e");
@@ -126,7 +123,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
-  // --- SUNUCUYA GÖNDERME ---
+  // --- API İLETİŞİMİ ---
   Future<void> _analyzeWithApi(String text) async {
     try {
       final response = await http.post(
@@ -136,7 +133,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       );
 
       if (response.statusCode == 200) {
-        // Türkçe karakterler için utf8 decode
         final data = jsonDecode(utf8.decode(response.bodyBytes)); 
         setState(() {
           _results = data['results'];
@@ -157,62 +153,66 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
     }
   }
+  // --- SONUCU KAYDETME DİYALOĞU ---
+  Future<void> _saveResultDialog() async {
+    if (_results.isEmpty) return;
     
-
-  // Kullanıcının seçtiği alerjenlerle eşleşme var mı kontrol eder
-  bool _isUserAllergic(String ingredientName) {
-    String lowerName = ingredientName.toLowerCase();
-
-    // Şimdilik test için statik bir liste, bir sonraki adımda Shared Preferences'tan çekeceğiz
-    List<String> activeAllergens = ["Gluten (Buğday, Arpa, vb.)"]; 
-
-    for (String allergenKey in activeAllergens) {
-      List<String>? synonyms = PreferencesScreen.allergenKeywords[allergenKey];
-      if (synonyms != null) {
-        for (String word in synonyms) {
-          // İçerik adı, sözlükteki kelimelerden birini içeriyorsa yakala
-          if (lowerName.contains(word)) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // --- AÇIKLAMA PENCERESİ (POP-UP) ---
-  void _showDescriptionDialog(BuildContext context, String title, String description) {
+    TextEditingController nameController = TextEditingController();
+    
     showDialog(
+      // context ismini dialogContext yaptık ki ana sayfanın context'i ile karışmasın
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Sonucu Kaydet", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            hintText: "Ürün adı (Örn: Çikolatalı Gofret)",
+            border: OutlineInputBorder(),
           ),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(
-                  description.isNotEmpty 
-                    ? description 
-                    : "Bu madde için detaylı açıklama bulunmamaktadır.",
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text("İptal")),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) return;
+
+              // 1. Adını al
+              final String productName = nameController.text.trim();
+
+              // 2. DİYALOĞU HEMEN KAPAT (Bekletmeye gerek yok)
+              Navigator.pop(dialogContext);
+              
+              // 3. Arka planda kaydetme işlemini yap
+              final prefs = await SharedPreferences.getInstance();
+              List<String> savedList = prefs.getStringList('saved_products') ?? [];
+              
+              Map<String, dynamic> newProduct = {
+                'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                'name': productName,
+                'date': "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+                'results': _results, 
+              };
+              
+              savedList.add(jsonEncode(newProduct));
+              await prefs.setStringList('saved_products', savedList);
+              
+              // 4. Ana sayfa hala açıksa bildirimi göster
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Ürün başarıyla kaydedildi!"), backgroundColor: Colors.green)
+                );
+              }
+            }, 
+            child: const Text("Kaydet")
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("Tamam"),
-              onPressed: () {
-                Navigator.of(context).pop(); // Pencereyi kapat
-              },
-            ),
-          ],
-        );
-      },
+        ],
+      )
     );
   }
 
+  // --- RENK VE İKON MANTIĞI ---
   Color _getRiskColor(String risk) {
     switch (risk.toLowerCase()) {
       case 'high': return Colors.red.shade100;
@@ -231,36 +231,49 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
+  void _showDescriptionDialog(BuildContext context, String title, String description) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(description.isNotEmpty ? description : "Açıklama bulunmamaktadır."),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("Tamam"))],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("FoodLens AI", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text("FoodLens AI Scan", style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.green.shade100,
+        actions: [
+          // Sadece sonuç varsa kaydet butonunu göster
+          if (_results.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.bookmark_add, size: 28),
+              onPressed: _saveResultDialog,
+              tooltip: "Sonucu Kaydet",
+            )
+        ],
       ),
       body: Column(
         children: [
-          // FOTOĞRAF ALANI
+          // FOTOĞRAF ÖNİZLEME
           Container(
             height: 220,
             width: double.infinity,
             color: Colors.grey.shade200,
             child: _image != null
                 ? Image.file(_image!, fit: BoxFit.cover)
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-                      const SizedBox(height: 10),
-                      const Text("Analiz için bir fotoğraf çekin 📸"),
-                    ],
-                  ),
+                : const Center(child: Icon(Icons.camera_alt, size: 50, color: Colors.grey)),
           ),
           
           const SizedBox(height: 15),
           
-          // BUTONLAR
+          // AKSİYON BUTONLARI
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -268,78 +281,61 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 onPressed: () => _pickImage(ImageSource.camera),
                 icon: const Icon(Icons.camera),
                 label: const Text("Kamera"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade50),
               ),
               ElevatedButton.icon(
                 onPressed: () => _pickImage(ImageSource.gallery),
                 icon: const Icon(Icons.photo),
                 label: const Text("Galeri"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade50),
               ),
             ],
           ),
 
-          const Divider(thickness: 1, height: 30),
+          const Divider(height: 30),
 
-         // SONUÇ LİSTESİ
+          // ANALİZ SONUÇLARI
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _results.isEmpty
-                    ? Center(
-                        child: Text(
-                          _image == null ? "" : "Riskli madde bulunamadı",
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      )
+                    ? const Center(child: Text("Analiz sonucu bulunamadı", style: TextStyle(color: Colors.grey)))
                     : ListView.builder(
                         itemCount: _results.length,
                         padding: const EdgeInsets.all(10),
                         itemBuilder: (context, index) {
                           final item = _results[index];
+                          final String itemName = item['name'].toString().toLowerCase();
                           
-                          // Bizim yazdığımız alerjen kontrol fonksiyonu [cite: 176]
-                          bool isAllergicMatch = _isUserAllergic(item['name']); 
+                          // FR-4 & FR-6: Hızlı Alerjen Eşleşme Kontrolü
+                          bool isAllergicMatch = false;
+                          for (String allergyKey in _activeAllergens) {
+                            List<String>? synonyms = PreferencesScreen.allergenKeywords[allergyKey];
+                            if (synonyms != null && synonyms.any((syn) => itemName.contains(syn.toLowerCase()))) {
+                              isAllergicMatch = true;
+                              break;
+                            }
+                          }
 
                           return Card(
-                            // Eğer alerjen eşleşmesi varsa Kırmızı, yoksa standart risk rengi 
                             color: isAllergicMatch ? Colors.red.shade400 : _getRiskColor(item['risk_level']),
+                            elevation: isAllergicMatch ? 6 : 2,
                             margin: const EdgeInsets.only(bottom: 8),
-                            elevation: isAllergicMatch ? 6 : 2, // Alerjenleri daha belirgin yap
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: Colors.white,
                                 child: Icon(
-                                  // Alerjen ise ünlem, değilse risk ikonunu göster 
-                                  isAllergicMatch ? Icons.report_problem : (item['risk_level'] == 'High' ? Icons.warning : Icons.check),
+                                  isAllergicMatch ? Icons.report_problem : Icons.info_outline,
                                   color: isAllergicMatch ? Colors.red : _getIconColor(item['risk_level']),
                                 ),
                               ),
-                              title: Text(
-                                item['name'], 
+                              title: Text(item['name'], 
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isAllergicMatch ? Colors.white : Colors.black, // Kırmızı kartta beyaz yazı
-                                )
-                              ),
+                                  fontWeight: FontWeight.bold, 
+                                  color: isAllergicMatch ? Colors.white : Colors.black)),
                               subtitle: Text(
-                                isAllergicMatch ? "⚠️ DİKKAT: Hassasiyetiniz!" : "Risk: ${item['risk_level']}",
-                                style: TextStyle(
-                                  color: isAllergicMatch ? Colors.white70 : Colors.black54,
-                                )
-                              ),
-                              trailing: Icon(
-                                Icons.info_outline, 
-                                color: isAllergicMatch ? Colors.white : Colors.black54
-                              ),
-                              
-                              onTap: () {
-                                _showDescriptionDialog(
-                                  context, 
-                                  item['name'], 
-                                  item['description'] ?? "" 
-                                );
-                              },
+                                isAllergicMatch ? "⚠️ HASSASİYETİNİZ!" : "Risk: ${item['risk_level']}",
+                                style: TextStyle(color: isAllergicMatch ? Colors.white70 : Colors.black54)),
+                              trailing: const Icon(Icons.chevron_right, color: Colors.white54),
+                              onTap: () => _showDescriptionDialog(context, item['name'], item['description'] ?? ""),
                             ),
                           );
                         },
