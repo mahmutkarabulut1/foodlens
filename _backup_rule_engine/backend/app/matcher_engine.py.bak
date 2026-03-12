@@ -1,0 +1,578 @@
+from __future__ import annotations
+
+from rapidfuzz import process, fuzz
+import logging
+import re
+from typing import Any, Dict, List, Optional
+
+from .config import (
+    DB_FILE,
+    STOP_ALIASES_RAW,
+    ROLE_TERMS_RAW,
+    ROLE_PREFIXES_RAW,
+    TYPE_PRIORITY,
+    QUERY_SYNONYMS,
+    START_KEYWORDS,
+    thresholds_for_type,
+)
+from .data_loader import load_master_records
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("FoodLens")
+
+TRANSLATION_TABLE = str.maketrans({
+    "İ": "i", "I": "ı", "Ğ": "ğ", "Ü": "ü", "Ş": "ş", "Ö": "ö", "Ç": "ç",
+    "\n": " ", "\t": " ",
+    ":": " ", ";": " ", ",": " ", ".": " ",
+    "(": " ", ")": " ", "[": " ", "]": " ",
+    "{": " ", "}": " ", "/": " ", "\\": " ",
+    "\"": " ", "'": " ", "•": " ", "|": " ", "+": " ", "*": " "
+})
+
+ASCII_TABLE = str.maketrans({
+    "ı": "i", "ğ": "g", "ü": "u", "ş": "s", "ö": "o", "ç": "c"
+})
+
+
+class FoodLensMatcher:
+    def __init__(self):
+        logger.info("RapidFuzz tabanlı matcher başlatılıyor")
+        self.database: List[Dict[str, Any]] = []
+        self.exact_map: Dict[str, List[Dict[str, Any]]] = {}
+        self.search_alias_map: Dict[str, List[Dict[str, Any]]] = {}
+        self.search_aliases: List[str] = []
+
+        self.stop_aliases = self._build_term_variants(STOP_ALIASES_RAW)
+        self.role_terms = self._build_term_variants(ROLE_TERMS_RAW)
+        self.role_prefixes = self._prepare_role_prefixes(ROLE_PREFIXES_RAW)
+
+        self.load_database()
+
+    def _normalize_text(self, text: str) -> str:
+        if text is None:
+            return ""
+        text = str(text).translate(TRANSLATION_TABLE).lower()
+        text = re.sub(r"[^0-9a-zçğıöşü\-\s]", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+
+    def _ascii_fold(self, text: str) -> str:
+        return self._normalize_text(text).translate(ASCII_TABLE)
+
+    def _canonicalize_ecode(self, text: str) -> Optional[str]:
+        raw = self._normalize_text(text)
+        match = re.search(r"e[\s\-]?(\d{3,4})([a-z]?)", raw, re.IGNORECASE)
+        if not match:
+            return None
+        digits = match.group(1)
+        suffix = (match.group(2) or "").lower()
+        return f"e{digits}{suffix}"
+
+    def _display_name(self, item: dict) -> str:
+        return item.get("name_tr") or item.get("name_en") or item.get("name") or ""
+
+    def _description(self, item: dict) -> str:
+        return item.get("description_tr") or item.get("note") or ""
+
+    def _build_term_variants(self, terms):
+        result = set()
+        for term in terms:
+            n = self._normalize_text(term)
+            a = self._ascii_fold(term)
+            if n:
+                result.add(n)
+            if a:
+                result.add(a)
+        return result
+
+    def _prepare_role_prefixes(self, prefixes):
+        prepared = set()
+        for prefix in prefixes:
+            n = self._normalize_text(prefix)
+            a = self._ascii_fold(prefix)
+            if n:
+                prepared.add(n)
+            if a:
+                prepared.add(a)
+        return sorted(prepared, key=len, reverse=True)
+
+    def _is_stop_alias(self, alias: str) -> bool:
+        n = self._normalize_text(alias)
+        a = self._ascii_fold(alias)
+        return n in self.stop_aliases or a in self.stop_aliases or n in self.role_terms or a in self.role_terms
+
+    def _should_index_exact(self, alias: str, item_type: str) -> bool:
+        if not alias or self._is_stop_alias(alias):
+            return False
+        if len(alias) < 2:
+            return False
+        return True
+
+    def _should_index_search(self, alias: str, item_type: str) -> bool:
+        if not self._should_index_exact(alias, item_type):
+            return False
+        if self._canonicalize_ecode(alias):
+            return True
+        if len(alias) <= 2:
+            return False
+        if len(alias.split()) == 1 and len(alias) <= 4:
+            return False
+        return True
+
+    def _expand_exact_aliases(self, raw_alias: str):
+        variants = set()
+        if raw_alias is None:
+            return variants
+
+        norm = self._normalize_text(raw_alias)
+        ascii_norm = self._ascii_fold(raw_alias)
+        ecode = self._canonicalize_ecode(raw_alias)
+
+        if norm:
+            variants.add(norm)
+        if ascii_norm and ascii_norm != norm:
+            variants.add(ascii_norm)
+        if ecode:
+            variants.add(ecode)
+            variants.add(ecode.replace("e", "e "))
+            variants.add(ecode.replace("e", "e-"))
+
+        return {v.strip() for v in variants if v.strip()}
+
+    def _expand_search_aliases(self, raw_alias: str):
+        variants = set()
+        if raw_alias is None:
+            return variants
+
+        norm = self._normalize_text(raw_alias)
+        ecode = self._canonicalize_ecode(raw_alias)
+
+        if norm:
+            variants.add(norm)
+        if ecode:
+            variants.add(ecode)
+            variants.add(ecode.replace("e", "e "))
+            variants.add(ecode.replace("e", "e-"))
+
+        return {v.strip() for v in variants if v.strip()}
+
+    def _register_alias(self, target_map: dict, alias: str, record: dict):
+        records = target_map.setdefault(alias, [])
+        rec_id = str(record["item"].get("id", "")).strip()
+        rec_type = str(record["item"].get("type", "")).strip()
+        rec_name = self._display_name(record["item"]).strip()
+
+        for existing in records:
+            ex_id = str(existing["item"].get("id", "")).strip()
+            ex_type = str(existing["item"].get("type", "")).strip()
+            ex_name = self._display_name(existing["item"]).strip()
+            if (rec_id, rec_type, rec_name) == (ex_id, ex_type, ex_name):
+                return
+
+        records.append(record)
+
+    def _normalized_tokens(self, text: str):
+        tokens = []
+        for tok in self._normalize_text(text).split():
+            if tok in self.stop_aliases or tok in self.role_terms:
+                continue
+            if len(tok) < 2:
+                continue
+            tokens.append(tok)
+        return tokens
+
+    def _token_match(self, qtok: str, atok: str) -> bool:
+        if qtok == atok:
+            return True
+        if self._ascii_fold(qtok) == self._ascii_fold(atok):
+            return True
+        if len(qtok) >= 4 and len(atok) >= 4 and fuzz.WRatio(qtok, atok) >= 86:
+            return True
+        return False
+
+    def _token_coverage(self, query: str, alias: str):
+        q_tokens = self._normalized_tokens(query)
+        a_tokens = self._normalized_tokens(alias)
+
+        if not q_tokens or not a_tokens:
+            return 0.0, 0.0, q_tokens, a_tokens
+
+        matched = 0
+        for qtok in q_tokens:
+            if any(self._token_match(qtok, atok) for atok in a_tokens):
+                matched += 1
+
+        query_coverage = matched / len(q_tokens)
+        alias_precision = matched / len(a_tokens) if a_tokens else 0.0
+        return query_coverage, alias_precision, q_tokens, a_tokens
+
+    def _is_query_alias_compatible(self, query: str, alias: str, item_type: str) -> bool:
+        query_coverage, alias_precision, q_tokens, _ = self._token_coverage(query, alias)
+
+        if not q_tokens:
+            return False
+
+        if item_type == "ingredient":
+            return query_coverage >= 1.0 and alias_precision >= 0.50
+
+        return query_coverage >= 1.0
+
+    def _candidate_score(self, query: str, record: dict):
+        item = record["item"]
+        alias = record["alias"]
+        item_type = item.get("type", "")
+        item_id = self._normalize_text(item.get("id", ""))
+        item_name = self._normalize_text(self._display_name(item))
+        query_ecode = self._canonicalize_ecode(query)
+        item_ecode = self._canonicalize_ecode(item.get("id", ""))
+
+        query_coverage, alias_precision, _, _ = self._token_coverage(query, alias)
+
+        exact_id = 1 if (item_id == query or (query_ecode and item_ecode == query_ecode)) else 0
+        exact_name = 1 if (item_name == query or self._ascii_fold(item_name) == self._ascii_fold(query)) else 0
+        exact_alias = 1 if (alias == query or self._ascii_fold(alias) == self._ascii_fold(query)) else 0
+        known_name = 0 if item_name in self.stop_aliases else 1
+        type_priority = TYPE_PRIORITY.get(item_type, 0)
+        generic_penalty = -1 if (len(alias.split()) == 1 and len(alias) <= 4 and not self._canonicalize_ecode(alias)) else 0
+        length_fit = -abs(len(alias) - len(query))
+
+        return (
+            exact_id,
+            exact_name,
+            exact_alias,
+            known_name,
+            type_priority,
+            round(query_coverage, 4),
+            round(alias_precision, 4),
+            generic_penalty,
+            length_fit,
+        )
+
+    def _select_best_candidate(self, query: str, candidates: list):
+        unique_candidates = []
+        seen = set()
+
+        for record in candidates:
+            item = record["item"]
+            signature = (
+                str(item.get("id", "")).strip(),
+                self._display_name(item).strip(),
+                str(item.get("type", "")).strip(),
+            )
+            if signature in seen:
+                continue
+            seen.add(signature)
+            unique_candidates.append(record)
+
+        return max(unique_candidates, key=lambda rec: self._candidate_score(query, rec))
+
+    def _is_descriptor_record(self, record: dict) -> bool:
+        item = record["item"]
+        alias = record["alias"]
+
+        name_norm = self._normalize_text(self._display_name(item))
+        alias_norm = self._normalize_text(alias)
+        name_ascii = self._ascii_fold(self._display_name(item))
+        alias_ascii = self._ascii_fold(alias)
+
+        if name_norm in self.role_terms or alias_norm in self.role_terms:
+            return True
+        if name_ascii in self.role_terms or alias_ascii in self.role_terms:
+            return True
+        return False
+
+    def build_indices(self):
+        self.exact_map = {}
+        self.search_alias_map = {}
+
+        for item in self.database:
+            item_type = item.get("type", "ingredient")
+            candidates = {
+                item.get("id"),
+                item.get("name_tr"),
+                item.get("name_en"),
+                item.get("name"),
+            }
+
+            keywords = item.get("keywords") or []
+            if isinstance(keywords, list):
+                candidates.update(keywords)
+
+            for raw_alias in candidates:
+                for alias in self._expand_exact_aliases(raw_alias):
+                    if self._should_index_exact(alias, item_type):
+                        self._register_alias(self.exact_map, alias, {"item": item, "alias": alias})
+
+                for alias in self._expand_search_aliases(raw_alias):
+                    if self._should_index_search(alias, item_type):
+                        self._register_alias(self.search_alias_map, alias, {"item": item, "alias": alias})
+
+        self.search_aliases = list(self.search_alias_map.keys())
+
+    def load_database(self):
+        logger.info("Veritabanı yükleniyor: %s", DB_FILE)
+        self.database = load_master_records()
+        self.build_indices()
+        logger.info(
+            "İndeks hazır. Kayıt: %s | Exact alias: %s | Search alias: %s",
+            len(self.database), len(self.exact_map), len(self.search_aliases)
+        )
+
+    def exact_lookup(self, query: str):
+        if query in self.exact_map:
+            record = self._select_best_candidate(query, self.exact_map[query])
+            if not self._is_descriptor_record(record):
+                return record, "exact", query, 100
+
+        folded = self._ascii_fold(query)
+        if folded and folded in self.exact_map:
+            record = self._select_best_candidate(query, self.exact_map[folded])
+            if not self._is_descriptor_record(record):
+                return record, "exact_ascii", folded, 99
+
+        ecode = self._canonicalize_ecode(query)
+        if ecode:
+            for alias in (ecode, ecode.replace("e", "e "), ecode.replace("e", "e-")):
+                if alias in self.exact_map:
+                    record = self._select_best_candidate(query, self.exact_map[alias])
+                    if not self._is_descriptor_record(record):
+                        return record, "ecode_exact", alias, 100
+
+        return None
+
+    def _regulated_recovery(self, query: str, prepared_matches: list):
+        return None
+
+    def search_lookup(self, query: str):
+        if not query or self._is_stop_alias(query):
+            return None
+
+        exact = self.exact_lookup(query)
+        if exact:
+            return exact
+
+        if len(query.split()) == 1 and len(query) <= 4 and not self._canonicalize_ecode(query):
+            return None
+
+        matches = process.extract(
+            query,
+            self.search_aliases,
+            scorer=fuzz.WRatio,
+            limit=25,
+        )
+
+        strong_candidates = []
+        fallback_candidates = []
+        prepared_matches = []
+
+        for alias, score, _ in matches:
+            records = self.search_alias_map.get(alias, [])
+            for record in records:
+                item = record["item"]
+                item_type = item.get("type", "")
+                if self._is_descriptor_record(record):
+                    continue
+
+                if not self._is_query_alias_compatible(query, alias, item_type):
+                    continue
+
+                query_coverage, alias_precision, _, _ = self._token_coverage(query, alias)
+                prepared = {
+                    "record": record,
+                    "alias": alias,
+                    "score": float(score),
+                    "query_coverage": query_coverage,
+                    "alias_precision": alias_precision,
+                    "item_type": item_type,
+                }
+                prepared_matches.append(prepared)
+
+                if item_type == "ingredient":
+                    continue
+
+                th = thresholds_for_type(item_type)
+                strict_fuzzy_strong = max(th["fuzzy_strong"], 96)
+                if score >= strict_fuzzy_strong and query_coverage >= 1.0 and alias_precision >= 1.0:
+                    strong_candidates.append(prepared)
+
+        if strong_candidates:
+            strong_candidates.sort(
+                key=lambda x: (
+                    x["query_coverage"],
+                    x["alias_precision"],
+                    x["score"],
+                    TYPE_PRIORITY.get(x["item_type"], 0),
+                ),
+                reverse=True,
+            )
+            best = strong_candidates[0]
+            return best["record"], "fuzzy_strong", best["alias"], int(round(best["score"]))
+
+        regulated = self._regulated_recovery(query, prepared_matches)
+        if regulated:
+            return regulated
+
+        return None
+
+    def _strip_role_prefix(self, text: str) -> str:
+        norm = self._normalize_text(text)
+        for prefix in self.role_prefixes:
+            if norm.startswith(prefix + " "):
+                return norm[len(prefix):].strip()
+        return norm
+
+    def _extract_section(self, text: str) -> str:
+        raw = str(text or "").strip()
+        lowered = self._ascii_fold(raw)
+
+        best_idx = None
+        best_kw = None
+        for kw in START_KEYWORDS:
+            k = self._ascii_fold(kw)
+            idx = lowered.find(k)
+            if idx != -1 and (best_idx is None or idx < best_idx):
+                best_idx = idx
+                best_kw = k
+
+        if best_idx is None:
+            return raw
+
+        section = raw[best_idx + len(best_kw):].lstrip(" :;-")
+        return section.strip()
+
+    def _split_candidates(self, text: str) -> List[str]:
+        section = self._extract_section(text)
+        if not section:
+            return []
+
+        working = str(section)
+        working = working.replace("(", ", ").replace(")", " ")
+        working = working.replace(";", ",").replace("•", ",")
+        working = re.sub(r"\s+", " ", working).strip()
+
+        raw_parts = [p.strip() for p in re.split(r",|\n", working) if p.strip()]
+        final_parts: List[str] = []
+
+        for part in raw_parts:
+            final_parts.append(part)
+
+            norm = self._strip_role_prefix(part)
+            if norm and norm != self._normalize_text(part):
+                final_parts.append(norm)
+
+            if " ve " in self._ascii_fold(part):
+                subs = re.split(r"\bve\b|\band\b", part, flags=re.IGNORECASE)
+                for s in subs:
+                    s = s.strip(" ,:-")
+                    if s:
+                        final_parts.append(s)
+                        stripped = self._strip_role_prefix(s)
+                        if stripped and stripped != self._normalize_text(s):
+                            final_parts.append(stripped)
+
+        deduped = []
+        seen = set()
+        for p in final_parts:
+            key = self._normalize_text(p)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            deduped.append(p)
+        return deduped
+
+    def _query_variants(self, query: str) -> List[str]:
+        variants = []
+        norm = self._normalize_text(query)
+        if norm:
+            variants.append(norm)
+
+        stripped = self._strip_role_prefix(query)
+        if stripped and stripped not in variants:
+            variants.append(stripped)
+
+        for v in list(variants):
+            if v in QUERY_SYNONYMS:
+                variants.extend(QUERY_SYNONYMS[v])
+
+        deduped = []
+        seen = set()
+        for v in variants:
+            nv = self._normalize_text(v)
+            if nv and nv not in seen:
+                seen.add(nv)
+                deduped.append(nv)
+        return deduped
+
+    def _validation_reason(self, match_type: str) -> List[str]:
+        if match_type in {"exact", "exact_ascii", "ecode_exact"}:
+            return []
+        if match_type == "fuzzy_strong":
+            return ["non_exact_fuzzy_match"]
+        if match_type == "fuzzy_fallback":
+            return ["fallback_fuzzy_match"]
+        if match_type == "regulated_typo_recovery":
+            return ["regulated_typo_recovery"]
+        return ["non_exact_match"]
+
+    def analyze_text(self, ocr_text: str) -> List[Dict[str, Any]]:
+        fragments = self._split_candidates(ocr_text)
+        results: List[Dict[str, Any]] = []
+        seen_ids = set()
+
+        for fragment in fragments:
+            best = None
+            for query in self._query_variants(fragment):
+                match = self.search_lookup(query)
+                if match:
+                    best = (fragment, query, match)
+                    if match[1] in {"exact", "exact_ascii", "ecode_exact"}:
+                        break
+
+            if not best:
+                continue
+
+            raw_fragment, used_query, (record, match_type, matched_key, match_score) = best
+            item = record["item"]
+            item_id = item.get("id")
+            if item_id in seen_ids:
+                continue
+            seen_ids.add(item_id)
+
+            query_coverage, alias_precision, _, _ = self._token_coverage(used_query, matched_key)
+            reason = self._validation_reason(match_type)
+
+            results.append({
+                "id": item.get("id"),
+                "name": self._display_name(item),
+                "item_type": item.get("type"),
+                "risk_level": item.get("risk_level"),
+                "description": self._description(item),
+                "raw_query": raw_fragment,
+                "matched_key": matched_key,
+                "match_type": match_type,
+                "match_score": match_score,
+                "needs_validation": len(reason) > 0,
+                "validation_reason": reason,
+                "verifier_payload": {
+                    "ocr_fragment": raw_fragment,
+                    "matched_key": matched_key,
+                    "candidate_id": item.get("id"),
+                    "candidate_name": self._display_name(item),
+                    "candidate_type": item.get("type"),
+                    "context": ocr_text,
+                    "query_coverage": query_coverage,
+                    "alias_precision": alias_precision,
+                },
+            })
+
+        return results
+
+    def health(self):
+        return {
+            "status": "ok",
+            "db_file": str(DB_FILE),
+            "item_count": len(self.database),
+            "exact_alias_count": len(self.exact_map),
+            "search_alias_count": len(self.search_aliases),
+            "semantic_enabled": False,
+        }

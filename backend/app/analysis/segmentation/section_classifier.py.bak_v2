@@ -1,0 +1,35 @@
+from __future__ import annotations
+
+from .anchors import (
+    ALLERGEN_ANCHORS,
+    FREE_FROM_ANCHORS,
+    INGREDIENT_ANCHORS,
+    MANUFACTURER_ANCHORS,
+    MAY_CONTAIN_ANCHORS,
+    NUTRITION_ANCHORS,
+    STORAGE_ANCHORS,
+    contains_any,
+)
+
+
+def classify_line(line: str) -> tuple[str, str]:
+    lowered = line.lower()
+
+    if contains_any(lowered, INGREDIENT_ANCHORS):
+        return "ingredient_section", "ingredient"
+
+    if contains_any(lowered, NUTRITION_ANCHORS):
+        return "nutrition_section", "nutrition"
+    if contains_any(lowered, STORAGE_ANCHORS):
+        return "storage_section", "storage"
+    if contains_any(lowered, MANUFACTURER_ANCHORS):
+        return "manufacturer_section", "manufacturer"
+    if contains_any(lowered, FREE_FROM_ANCHORS):
+        return "free_from_section", "free_from"
+    if contains_any(lowered, MAY_CONTAIN_ANCHORS):
+        return "may_contain_section", "may_contain"
+    if contains_any(lowered, ALLERGEN_ANCHORS):
+        return "allergen_section", "allergen"
+    if "," in line and any(token in lowered for token in [" e", "asit", "yağ", "yag", "süt", "sut", "şeker", "seker", "sodyum", "potasyum", "aroma"]):
+        return "ingredient_section", "comma_dense"
+    return "misc_section", ""

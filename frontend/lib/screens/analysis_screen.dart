@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:http/http.dart' as http;
@@ -38,11 +39,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       );
 
       if (pickedFile != null) {
+        final Stopwatch setStateSw = Stopwatch()..start();
         setState(() {
           _image = File(pickedFile.path);
           _results = []; // Eski sonuçları temizle
           _ocrText = "";
         });
+        setStateSw.stop();
+        debugPrint('UI setState time: ${setStateSw.elapsedMilliseconds} ms');
         
         // Kullanıcıya bilgi verelim
         if (mounted) {
@@ -64,6 +68,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
   // --- AKILLI FİLTRELEME VE OCR MOTORU ---
   Future<void> _processImage() async {
+    final Stopwatch totalSw = Stopwatch()..start();
+    final Stopwatch ocrSw = Stopwatch();
+    final Stopwatch apiSw = Stopwatch();
+    final Stopwatch uiSw = Stopwatch();
+    debugPrint('=== ANALYSIS START ===');
     if (_image == null) return;
 
     setState(() => _isLoading = true);
@@ -71,8 +80,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     try {
       // 1. ADIM: OCR ile Metni Oku (Google ML Kit)
       final inputImage = InputImage.fromFile(_image!);
+      ocrSw.start();
       final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
       final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+      ocrSw.stop();
+      debugPrint('OCR time: ${ocrSw.elapsedMilliseconds} ms');
+      debugPrint('OCR raw text length: ${recognizedText.text.length}');
       
       String rawText = recognizedText.text;
       
@@ -117,7 +130,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       setState(() => _ocrText = finalText);
 
       // 4. ADIM: Metni API'ye Gönder
+      apiSw.start();
       await _analyzeWithApi(finalText);
+      apiSw.stop();
+      debugPrint('API function total time: ${apiSw.elapsedMilliseconds} ms');
+      totalSw.stop();
+      debugPrint('TOTAL analysis time: ${totalSw.elapsedMilliseconds} ms');
+      debugPrint('=== ANALYSIS END ===');
 
       textRecognizer.close();
     } catch (e) {
@@ -129,12 +148,18 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   // --- SUNUCUYA GÖNDERME ---
   Future<void> _analyzeWithApi(String text) async {
     try {
+      final Stopwatch requestSw = Stopwatch()..start();
+      debugPrint('API request text length: ${text.length}');
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"ocr_text": text}),
       );
 
+      requestSw.stop();
+      debugPrint('HTTP request time: ${requestSw.elapsedMilliseconds} ms');
+      debugPrint('HTTP status: ${response.statusCode}');
+      debugPrint('HTTP response bytes: ${response.bodyBytes.length}');
       if (response.statusCode == 200) {
         // Türkçe karakterler için utf8 decode
         final data = jsonDecode(utf8.decode(response.bodyBytes)); 
