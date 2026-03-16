@@ -3,6 +3,7 @@ import 'package:foodlens_mobile/screens/analysis_screen.dart';
 import 'package:foodlens_mobile/screens/preferences_screen.dart';
 import 'package:foodlens_mobile/screens/saved_items_screen.dart';
 import 'package:foodlens_mobile/screens/welcome_screen.dart';
+import 'package:foodlens_mobile/services/local_storage_service.dart';
 
 void main() {
   runApp(const FoodLensApp());
@@ -33,18 +34,37 @@ class AppBootstrapScreen extends StatefulWidget {
 }
 
 class _AppBootstrapScreenState extends State<AppBootstrapScreen> {
-  bool _showWelcome = true;
+  bool? _hasSeenWelcome;
 
-  Future<void> _handleContinue() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadWelcomeState();
+  }
+
+  Future<void> _loadWelcomeState() async {
+    final hasSeen = await LocalStorageService.getHasSeenWelcome();
     if (!mounted) return;
     setState(() {
-      _showWelcome = false;
+      _hasSeenWelcome = hasSeen;
+    });
+  }
+
+  Future<void> _handleContinue() async {
+    await LocalStorageService.setHasSeenWelcome(true);
+    if (!mounted) return;
+    setState(() {
+      _hasSeenWelcome = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_showWelcome) {
+    if (_hasSeenWelcome == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_hasSeenWelcome == false) {
       return WelcomeScreen(onContinue: _handleContinue);
     }
 

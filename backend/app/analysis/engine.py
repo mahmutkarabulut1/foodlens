@@ -12,6 +12,7 @@ from .extraction.ingredient_parser import extract_from_ingredient_block
 from .extraction.claim_parser import extract_claim_spans
 from .matching.lexicon import MasterLexicon
 from .matching.exact_matcher import ExactRuleMatcher
+from .matching.fuzzy_recovery import FuzzyRecoveryMatcher
 
 logger = logging.getLogger("FoodLens")
 
@@ -38,6 +39,7 @@ class FoodLensAnalysisEngine:
         logger.info("Rule-based analysis engine yükleniyor: %s", self.db_file)
         self.lexicon = MasterLexicon(self.db_file)
         self.matcher = ExactRuleMatcher(self.lexicon)
+        self.fuzzy_matcher = FuzzyRecoveryMatcher(self.lexicon)
 
     def _extract_inline_claims(self, block: TextBlock) -> List[CandidateSpan]:
         if block.section_type in {"free_from_section", "may_contain_section", "allergen_section"}:
@@ -123,6 +125,10 @@ class FoodLensAnalysisEngine:
 
         for span in spans:
             entity = self.matcher.match_span(span)
+
+            if entity is None:
+                entity = self.fuzzy_matcher.match_span(span)
+
             if entity is None:
                 analysis.unmatched_spans.append(span)
                 continue
@@ -164,5 +170,5 @@ class FoodLensAnalysisEngine:
             "exact_alias_count": len(self.lexicon.alias_map),
             "search_alias_count": len(self.lexicon.alias_map),
             "semantic_enabled": False,
-            "analysis_mode": "rule_based_sections_v2",
+            "analysis_mode": "rule_based_sections_v2_with_fuzzy_recovery",
         }

@@ -23,10 +23,18 @@ def health():
 @app.post("/analyze")
 def analyze_image(request: ImageRequest):
     matcher = get_matcher()
-    return {"results": matcher.analyze_text(request.ocr_text)}
+    return {
+        "results": matcher.analyze_text(
+            request.ocr_text,
+            request.selected_allergens,
+        )
+    }
 
 
 @app.post("/analyze-structured")
 def analyze_image_structured(request: ImageRequest):
     matcher = get_matcher()
-    return matcher.analyze_structured(request.ocr_text)
+    return matcher.analyze_structured(
+        request.ocr_text,
+        request.selected_allergens,
+    )

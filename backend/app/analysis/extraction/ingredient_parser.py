@@ -3,145 +3,110 @@ from __future__ import annotations
 import re
 from typing import List
 
-from ..schemas import CandidateSpan, TextBlock
 from ..preprocessing.normalize import normalize_for_matching
-from ..rules.exclusion_rules import should_ignore_candidate
-from ..rules.sentence_rules import ROLE_PREFIXES
+from ..schemas import CandidateSpan, TextBlock
 
-ECODE_RE = re.compile(r"\be[\s\-]?\d{3,4}[a-z]?\b", re.IGNORECASE)
-ANCHOR_RE = re.compile(
+INGREDIENT_HEADER_RE = re.compile(
     r"\b(içindekiler|icindekiler|ingredients|ingredient list|bileşenler|bilesenler|içerik|icerik)\b\s*[:.]?",
     re.IGNORECASE,
 )
-CLAIM_CUTOFF_RE = re.compile(
-    r"\b(eser miktarda|iz miktarda|may contain|alerjen|allergen|içermez|icermez|yoktur|bulunmaz|does not contain|contains no)\b",
+
+SKIP_FRAGMENT_RE = re.compile(
+    r"\b(iz miktarda|eser miktarda|may contain|içerebilir|icerebilir|içermez|icermez|yoktur|bulunmaz)\b",
     re.IGNORECASE,
 )
 
-GENERIC_ROLE_ONLY = {prefix.lower() for prefix in ROLE_PREFIXES} | {
-    "aroma", "aroma verici", "aroma vericiler",
-    "renklendirici", "renklendiriciler", "renk verici", "renk vericiler",
-    "koruyucu", "koruyucular",
-    "emülgatör", "emülgatörler", "emulgator", "emulgatorler",
-}
+PERCENT_RE = re.compile(r"\b\d+(?:[.,]\d+)?\s*%")
+ONLY_NONWORD_RE = re.compile(r"^[\W_]+$")
+HAS_LETTER_RE = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]")
+
+BRACKET_TRANSLATION = str.maketrans({
+    "(": ",",
+    ")": ",",
+    "[": ",",
+    "]": ",",
+    "{": ",",
+    "}": ",",
+    "（": ",",
+    "）": ",",
+    "【": ",",
+    "】": ",",
+    "〔": ",",
+    "〕": ",",
+    "［": ",",
+    "］": ",",
+    "｛": ",",
+    "｝": ",",
+    "<": ",",
+    ">": ",",
+    "〈": ",",
+    "〉": ",",
+    "«": ",",
+    "»": ",",
+})
+
+SEPARATOR_RE = re.compile(r"[,;\n/|•·]+")
+MULTISPACE_RE = re.compile(r"\s+")
+EDGE_PUNCT_RE = re.compile(r"^[\s\-–—:;,.]+|[\s\-–—:;,.]+$")
 
 
-def strip_anchor(text: str) -> str:
-    text = ANCHOR_RE.sub("", text, count=1).strip(" -:;,")
-    text = CLAIM_CUTOFF_RE.split(text, maxsplit=1)[0].strip(" -:;,")
-    return text
+def _prepare_text(text: str) -> str:
+    value = str(text or "")
+    value = INGREDIENT_HEADER_RE.sub("", value)
+    value = value.translate(BRACKET_TRANSLATION)
+    value = value.replace(";", ",").replace("/", ",").replace("|", ",")
+    value = re.sub(r"\s*,\s*", ",", value)
+    value = MULTISPACE_RE.sub(" ", value).strip()
+    return value
 
 
-def split_outside_parentheses(text: str) -> List[str]:
-    parts: List[str] = []
-    buf: List[str] = []
-    depth = 0
-
-    for ch in text:
-        if ch == "(":
-            depth += 1
-        elif ch == ")" and depth > 0:
-            depth -= 1
-
-        if depth == 0 and ch in ",;":
-            piece = "".join(buf).strip()
-            if piece:
-                parts.append(piece)
-            buf = []
-            continue
-
-        buf.append(ch)
-
-    tail = "".join(buf).strip()
-    if tail:
-        parts.append(tail)
-
-    return parts
-
-
-def expand_with_parentheses(piece: str) -> List[str]:
-    piece = piece.strip()
-    if not piece:
-        return []
-
-    match = re.match(r"^(.*?)\((.*?)\)$", piece)
-    if not match:
-        return [piece]
-
-    outer = match.group(1).strip(" -:;,")
-    inner = match.group(2).strip()
-
-    inner_parts = split_outside_parentheses(inner)
-    results = []
-
-    if outer and outer.lower() not in {prefix.lower() for prefix in ROLE_PREFIXES}:
-        results.append(outer)
-
-    for inner_piece in inner_parts:
-        inner_piece = inner_piece.strip(" -:;,")
-        if inner_piece:
-            results.append(inner_piece)
-
-    return results
-
-
-def cleanup_candidate(text: str) -> str:
-    text = text.strip(" -:;,.")
-    lowered = text.lower()
-    for prefix in ROLE_PREFIXES:
-        prefix_low = prefix.lower()
-        if lowered.startswith(prefix_low + " "):
-            text = text[len(prefix):].strip(" -:;,.")
-            break
-    return text
+def _clean_fragment(fragment: str) -> str:
+    value = str(fragment or "")
+    value = PERCENT_RE.sub("", value)
+    value = EDGE_PUNCT_RE.sub("", value)
+    value = MULTISPACE_RE.sub(" ", value).strip()
+    return value
 
 
 def extract_from_ingredient_block(block: TextBlock) -> List[CandidateSpan]:
-    text = strip_anchor(block.raw_text)
-    pieces = split_outside_parentheses(text)
-    results: List[CandidateSpan] = []
+    prepared = _prepare_text(block.raw_text)
+    raw_fragments = SEPARATOR_RE.split(prepared)
 
-    for ecode in ECODE_RE.findall(text):
-        candidate = ecode.strip()
-        if candidate:
-            results.append(
-                CandidateSpan(
-                    raw_text=candidate,
-                    normalized_text=normalize_for_matching(candidate),
-                    section_type=block.section_type,
-                    polarity="present",
-                    category_hint="additive",
-                    evidence=block.raw_text,
-                )
+    spans: List[CandidateSpan] = []
+    seen = set()
+
+    for raw in raw_fragments:
+        cleaned = _clean_fragment(raw)
+
+        if not cleaned:
+            continue
+
+        if ONLY_NONWORD_RE.match(cleaned):
+            continue
+
+        if not HAS_LETTER_RE.search(cleaned):
+            continue
+
+        if SKIP_FRAGMENT_RE.search(cleaned):
+            continue
+
+        normalized = normalize_for_matching(cleaned)
+        if not normalized or len(normalized) < 2:
+            continue
+
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+
+        spans.append(
+            CandidateSpan(
+                raw_text=cleaned,
+                normalized_text=normalized,
+                section_type=block.section_type,
+                polarity="present",
+                category_hint="ingredient",
+                evidence=block.raw_text,
             )
+        )
 
-    for piece in pieces:
-        for expanded in expand_with_parentheses(piece):
-            candidate = cleanup_candidate(expanded)
-            if not candidate:
-                continue
-            if candidate.lower() in GENERIC_ROLE_ONLY:
-                continue
-            if should_ignore_candidate(candidate):
-                continue
-
-            norm = normalize_for_matching(candidate)
-            if should_ignore_candidate(norm):
-                continue
-
-            category_hint = "ingredient"
-            if ECODE_RE.search(candidate):
-                category_hint = "additive"
-
-            results.append(
-                CandidateSpan(
-                    raw_text=candidate,
-                    normalized_text=norm,
-                    section_type=block.section_type,
-                    polarity="present",
-                    category_hint=category_hint,
-                    evidence=block.raw_text,
-                )
-            )
-
-    return results
+    return spans

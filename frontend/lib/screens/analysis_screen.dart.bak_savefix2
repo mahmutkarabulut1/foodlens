@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:foodlens_mobile/screens/preferences_screen.dart';
 import 'package:foodlens_mobile/services/local_storage_service.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:http/http.dart' as http;
@@ -59,36 +60,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     });
   }
 
-  String _canonicalizeInputText(String text) {
-    String value = text.trim();
-
-    if (value.isEmpty) {
-      return "";
-    }
-
-    value = value.replaceAll(RegExp(r'\s+'), ' ').trim();
-
-    final hasCue = RegExp(
-      r'^\s*(içindekiler|icindekiler|ingredients|ingredient list|bileşenler|bilesenler)\s*:',
-      caseSensitive: false,
-    ).hasMatch(value);
-
-    if (!hasCue) {
-      value = "İçindekiler: $value";
-    }
-
-    value = value.replaceAll(
-      RegExp(r'\bglukoz\s+şurubu\b', caseSensitive: false),
-      'glikoz şurubu',
-    );
-    value = value.replaceAll(
-      RegExp(r'\bglukoz\s+surubu\b', caseSensitive: false),
-      'glikoz şurubu',
-    );
-
-    return value;
-  }
-
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
@@ -98,26 +69,24 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         imageQuality: 90,
       );
 
-      if (pickedFile == null) {
-        return;
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+          _results = [];
+          _ocrText = "";
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Fotoğraf seçildi. Analiz başlatılıyor..."),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
+
+        await _processImage();
       }
-
-      setState(() {
-        _image = File(pickedFile.path);
-        _results = [];
-        _ocrText = "";
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Fotoğraf seçildi. Analiz başlatılıyor..."),
-            duration: Duration(seconds: 1),
-          ),
-        );
-      }
-
-      await _processImage();
     } catch (e) {
       _showError("Resim seçilirken hata oluştu: $e");
     }
@@ -126,26 +95,30 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Future<void> _processImage() async {
     if (_image == null) return;
 
+    final Stopwatch totalSw = Stopwatch()..start();
+    final Stopwatch ocrSw = Stopwatch();
+    final Stopwatch apiSw = Stopwatch();
+
     setState(() => _isLoading = true);
 
     final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
     try {
       final inputImage = InputImage.fromFile(_image!);
+      ocrSw.start();
       final RecognizedText recognizedText = await textRecognizer.processImage(
         inputImage,
       );
+      ocrSw.stop();
 
-      final String rawText = recognizedText.text.trim();
+      debugPrint('OCR time: ${ocrSw.elapsedMilliseconds} ms');
+      debugPrint('OCR raw text length: ${recognizedText.text.length}');
 
-      if (rawText.isEmpty) {
-        setState(() {
-          _isLoading = false;
-          _results = [];
-          _ocrText = "";
-        });
+      final String rawText = recognizedText.text;
 
-        _showError("Fotoğrafta okunabilir bir içerik metni bulunamadı.");
+      if (rawText.trim().isEmpty) {
+        _showError("Yazı okunamadı. Lütfen daha net bir fotoğraf çekin.");
+        setState(() => _isLoading = false);
         return;
       }
 
@@ -174,41 +147,34 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         }
       }
 
-      final String finalText = _canonicalizeInputText(cleanLines.join("\n"));
-
-      if (finalText.trim().isEmpty) {
-        setState(() {
-          _isLoading = false;
-          _results = [];
-          _ocrText = "";
-        });
-
-        _showError("Fotoğraftaki metin analiz için yeterli değil.");
-        return;
-      }
+      final String finalText = cleanLines.join("\n");
 
       setState(() {
         _ocrText = finalText;
       });
 
+      apiSw.start();
       await _analyzeWithApi(finalText);
+      apiSw.stop();
+
+      debugPrint('API function total time: ${apiSw.elapsedMilliseconds} ms');
+      totalSw.stop();
+      debugPrint('TOTAL analysis time: ${totalSw.elapsedMilliseconds} ms');
     } catch (e) {
-      setState(() => _isLoading = false);
       _showError("OCR hatası: $e");
+      setState(() => _isLoading = false);
     } finally {
       textRecognizer.close();
     }
   }
 
   Future<void> _analyzeManualText() async {
-    final String raw = _manualTextController.text.trim();
+    final String text = _manualTextController.text.trim();
 
-    if (raw.isEmpty) {
+    if (text.isEmpty) {
       _showError("Lütfen analiz etmek istediğiniz içindekiler metnini girin.");
       return;
     }
-
-    final String text = _canonicalizeInputText(raw);
 
     setState(() {
       _image = null;
@@ -225,10 +191,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "ocr_text": text,
-          "selected_allergens": _activeAllergens.toList(),
-        }),
+        body: jsonEncode({"ocr_text": text}),
       );
 
       if (response.statusCode == 200) {
@@ -238,153 +201,121 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           _isLoading = false;
         });
       } else {
-        setState(() => _isLoading = false);
         _showError("Sunucu hatası: ${response.statusCode}");
+        setState(() => _isLoading = false);
       }
     } catch (e) {
-      setState(() => _isLoading = false);
       _showError("Bağlantı hatası: $e");
+      setState(() => _isLoading = false);
     }
   }
 
   Future<void> _promptSaveItem() async {
-    if (_ocrText.trim().isEmpty) {
-      _showError("Kaydetmek için önce bir ürün analizi yapın.");
-      return;
-    }
+    try {
+      if (_ocrText.trim().isEmpty) {
+        _showError("Kaydetmek için önce bir ürün analizi yapın.");
+        return;
+      }
 
-    final TextEditingController nameController = TextEditingController();
+      final TextEditingController nameController = TextEditingController();
 
-    final String? productName = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text(
-            "Ürünü Kaydet",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: TextField(
-            controller: nameController,
-            autofocus: true,
-            decoration: const InputDecoration(
-              labelText: "Ürün adı",
-              hintText: "Örn. Bitter çikolata",
-              border: OutlineInputBorder(),
+      final String? productName = await showModalBottomSheet<String>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (sheetContext) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              MediaQuery.of(sheetContext).viewInsets.bottom + 16,
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text("İptal"),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Ürünü Kaydet",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Bu analizi daha sonra tekrar görmek için ürününüze bir isim verin.",
+                  style: TextStyle(color: Colors.black87),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    labelText: "Ürün adı",
+                    hintText: "Örn. Bitter çikolata",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                        child: const Text("Vazgeç"),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          final value = nameController.text.trim();
+                          if (value.isEmpty) {
+                            return;
+                          }
+                          Navigator.of(sheetContext).pop(value);
+                        },
+                        icon: const Icon(Icons.bookmark_add_outlined),
+                        label: const Text("Kaydet"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            FilledButton(
-              onPressed: () {
-                final value = nameController.text.trim();
-                if (value.isEmpty) return;
-                Navigator.of(dialogContext).pop(value);
-              },
-              child: const Text("Kaydet"),
-            ),
-          ],
-        );
-      },
-    );
+          );
+        },
+      );
 
-    Future.delayed(
-      const Duration(milliseconds: 300),
-      () => nameController.dispose(),
-    );
+      nameController.dispose();
 
-    if (productName == null || productName.trim().isEmpty) {
-      return;
-    }
+      if (productName == null || productName.trim().isEmpty) {
+        return;
+      }
 
-    await LocalStorageService.saveSavedItem({
-      "title": productName.trim(),
-      "content": _ocrText,
-      "results": _results,
-      "savedAt": DateTime.now().toIso8601String(),
-    });
+      final payload = <String, dynamic>{
+        "title": productName.trim(),
+        "content": _ocrText,
+        "results": _results,
+        "savedAt": DateTime.now().toIso8601String(),
+      };
 
-    if (!mounted) return;
+      await LocalStorageService.saveSavedItem(payload);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+
+      if (!mounted) return;
+
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.hideCurrentSnackBar();
       messenger?.showSnackBar(
         const SnackBar(content: Text("Ürün cihazınıza kaydedildi.")),
       );
-    });
-  }
+    } catch (e, st) {
+      debugPrint("SAVE ERROR: $e");
+      debugPrint("$st");
 
-  Future<void> _openManualInputSheet() async {
-    _manualTextController.clear();
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            MediaQuery.of(sheetContext).viewInsets.bottom + 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "İçindekiler Metnini Gir",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Fotoğraf net değilse veya ambalaj çok kıvrımlıysa içindekiler metnini doğrudan yazabilirsiniz.",
-                style: TextStyle(color: Colors.black87),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _manualTextController,
-                autofocus: true,
-                minLines: 5,
-                maxLines: 7,
-                decoration: const InputDecoration(
-                  hintText:
-                      "Örn. şeker, glukoz şurubu, süt tozu, soya lesitini...",
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(sheetContext).pop(),
-                      child: const Text("Vazgeç"),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () async {
-                        Navigator.of(sheetContext).pop();
-                        await _analyzeManualText();
-                      },
-                      icon: const Icon(Icons.analytics_rounded),
-                      label: const Text("Analiz Et"),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+      if (!mounted) return;
+      _showError("Kayıt sırasında hata oluştu: $e");
+    }
   }
 
   void _showError(String message) {
@@ -395,98 +326,21 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  List<String> _extractParsedIngredients() {
-    String text = _ocrText.trim();
+  bool _isUserAllergic(String ingredientName) {
+    final String lowerName = ingredientName.toLowerCase();
 
-    if (text.isEmpty) {
-      return <String>[];
-    }
+    for (final allergenKey in _activeAllergens) {
+      final List<String> synonyms =
+          PreferencesScreen.allergenKeywords[allergenKey] ?? <String>[];
 
-    text = text.replaceFirst(
-      RegExp(
-        r'^\s*(içindekiler|icindekiler|ingredients|bileşenler|bilesenler)\s*:\s*',
-        caseSensitive: false,
-      ),
-      '',
-    );
-
-    final rawParts = text.split(RegExp(r'[,;\n]'));
-    final seen = <String>{};
-    final items = <String>[];
-
-    for (final raw in rawParts) {
-      final cleaned = raw.trim();
-      if (cleaned.isEmpty) continue;
-
-      final key = cleaned.toLowerCase();
-      if (seen.add(key)) {
-        items.add(cleaned);
+      for (final word in synonyms) {
+        if (lowerName.contains(word.toLowerCase())) {
+          return true;
+        }
       }
     }
 
-    return items;
-  }
-
-  Widget _buildParsedIngredientFallback() {
-    final ingredients = _extractParsedIngredients();
-
-    if (ingredients.isEmpty) {
-      return const Center(
-        child: Text(
-          "Eşleşen riskli madde bulunamadı.",
-          style: TextStyle(color: Colors.grey),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(12, 6, 12, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline_rounded),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    "Hassasiyet veya risk eşleşmesi bulunamadı. Yine de algılanan içerikler aşağıda listelenmiştir.",
-                    style: TextStyle(height: 1.35),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            "Algılanan İçerikler",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: ingredients
-                .map(
-                  (item) => Chip(
-                    label: Text(item),
-                    backgroundColor: Colors.grey.shade200,
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
-    );
+    return false;
   }
 
   void _showDescriptionDialog(
@@ -656,7 +510,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         );
       }
 
-      return _buildParsedIngredientFallback();
+      return const Center(
+        child: Text(
+          "Eşleşen riskli madde bulunamadı.",
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
     }
 
     return ListView.builder(
@@ -668,48 +527,44 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         final String riskLevel = (item['risk_level'] ?? 'Belirsiz').toString();
         final String description = (item['description'] ?? '').toString();
 
-        final bool isSensitiveMatch = item['user_sensitive_match'] == true;
-        final String matchedUserAllergen = (item['matched_user_allergen'] ?? '')
-            .toString();
+        final bool isAllergicMatch = _isUserAllergic(itemName);
 
         return Card(
-          color: isSensitiveMatch
+          color: isAllergicMatch
               ? Colors.red.shade400
               : _getRiskColor(riskLevel),
           margin: const EdgeInsets.only(bottom: 8),
-          elevation: isSensitiveMatch ? 6 : 2,
+          elevation: isAllergicMatch ? 6 : 2,
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(
-                isSensitiveMatch
+                isAllergicMatch
                     ? Icons.report_problem_rounded
                     : (riskLevel.toLowerCase() == 'high'
                           ? Icons.warning_amber_rounded
                           : Icons.check_circle_outline_rounded),
-                color: isSensitiveMatch ? Colors.red : _getIconColor(riskLevel),
+                color: isAllergicMatch ? Colors.red : _getIconColor(riskLevel),
               ),
             ),
             title: Text(
               itemName,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isSensitiveMatch ? Colors.white : Colors.black,
+                color: isAllergicMatch ? Colors.white : Colors.black,
               ),
             ),
             subtitle: Text(
-              isSensitiveMatch
-                  ? (matchedUserAllergen.isNotEmpty
-                        ? "Hassasiyet eşleşmesi: $matchedUserAllergen"
-                        : "Hassasiyetiniz ile eşleşiyor")
+              isAllergicMatch
+                  ? "Hassasiyetiniz ile eşleşiyor"
                   : "Risk düzeyi: $riskLevel",
               style: TextStyle(
-                color: isSensitiveMatch ? Colors.white70 : Colors.black54,
+                color: isAllergicMatch ? Colors.white70 : Colors.black54,
               ),
             ),
             trailing: Icon(
               Icons.info_outline_rounded,
-              color: isSensitiveMatch ? Colors.white : Colors.black54,
+              color: isAllergicMatch ? Colors.white : Colors.black54,
             ),
             onTap: () {
               _showDescriptionDialog(context, itemName, description);

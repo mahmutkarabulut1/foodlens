@@ -1,0 +1,397 @@
+from __future__ import annotations
+
+from typing import Dict, List
+
+from rapidfuzz import fuzz, process
+
+from ..preprocessing.normalize import ascii_fold, normalize_for_matching
+from ..schemas import CandidateSpan, MatchedEntity
+from .lexicon import MasterLexicon, TYPE_PRIORITY_BY_SECTION, TYPE_PRIORITY_DEFAULT
+
+STOP_TOKENS = {
+    "ve", "veya", "ile", "icin", "için",
+    "icindekiler", "içindekiler", "ingredients", "ingredient",
+    "eser", "iz", "miktarda", "contains", "free", "from",
+}
+
+
+class FuzzyRecoveryMatcher:
+    def __init__(self, lexicon: MasterLexicon):
+        self.lexicon = lexicon
+        self.search_aliases: List[str] = list(self.lexicon.alias_map.keys())
+
+    def _normalize(self, text: str) -> str:
+        return normalize_for_matching(text or "")
+
+    def _fold(self, text: str) -> str:
+        return ascii_fold(text or "")
+
+    def _tokens(self, text: str) -> List[str]:
+        normalized = self._fold(self._normalize(text))
+        tokens = []
+        for token in normalized.split():
+            if len(token) < 2:
+                continue
+            if token in STOP_TOKENS:
+                continue
+            tokens.append(token)
+        return tokens
+
+    def _common_prefix_len(self, left: str, right: str) -> int:
+        count = 0
+        for lch, rch in zip(left, right):
+            if lch == rch:
+                count += 1
+            else:
+                break
+        return count
+
+    def _common_suffix_len(self, left: str, right: str) -> int:
+        count = 0
+        for lch, rch in zip(left[::-1], right[::-1]):
+            if lch == rch:
+                count += 1
+            else:
+                break
+        return count
+
+    def _token_match_score(self, query_token: str, alias_token: str) -> float:
+        q = self._fold(query_token)
+        a = self._fold(alias_token)
+
+        if not q or not a:
+            return 0.0
+
+        if q == a:
+            return 1.0
+
+        wr = fuzz.WRatio(q, a) / 100.0
+        ratio = fuzz.ratio(q, a) / 100.0
+
+        prefix_len = self._common_prefix_len(q, a)
+        suffix_len = self._common_suffix_len(q, a)
+
+        prefix_score = min(prefix_len, 4) / 4.0
+        suffix_score = min(suffix_len, 3) / 3.0
+
+        score = (0.58 * wr) + (0.22 * ratio) + (0.12 * prefix_score) + (0.08 * suffix_score)
+
+        length_gap = abs(len(q) - len(a)) / max(len(q), len(a), 1)
+        score -= 0.10 * length_gap
+
+        if q[0] != a[0] and min(len(q), len(a)) <= 6:
+            score -= 0.20
+
+        return max(0.0, min(score, 1.0))
+
+    def _best_token_alignment(self, query_tokens: List[str], alias_tokens: List[str]):
+        if not query_tokens or not alias_tokens:
+            return 0.0, 0.0, 0.0, 0.0
+
+        query_scores = []
+        for qtok in query_tokens:
+            best = 0.0
+            for atok in alias_tokens:
+                best = max(best, self._token_match_score(qtok, atok))
+            query_scores.append(best)
+
+        alias_scores = []
+        for atok in alias_tokens:
+            best = 0.0
+            for qtok in query_tokens:
+                best = max(best, self._token_match_score(qtok, atok))
+            alias_scores.append(best)
+
+        query_coverage = sum(query_scores) / len(query_scores)
+        alias_precision = sum(alias_scores) / len(alias_scores)
+        strong_anchor_ratio = sum(1 for s in query_scores if s >= 0.97) / len(query_scores)
+        min_query_token_score = min(query_scores) if query_scores else 0.0
+
+        return query_coverage, alias_precision, strong_anchor_ratio, min_query_token_score
+
+    def _candidate_priority(self, record: Dict[str, str], section_type: str) -> int:
+        section_priority = TYPE_PRIORITY_BY_SECTION.get(section_type, TYPE_PRIORITY_DEFAULT)
+        item_type = record.get("item_type", "")
+        return section_priority.get(item_type, 0)
+
+    def _single_token_thresholds(self, token_len: int) -> Dict[str, float]:
+        if token_len <= 3:
+            return {
+                "min_token_score": 0.985,
+                "min_fuzzy_score": 98.0,
+                "ambiguity_gap": 5.0,
+            }
+        if token_len == 4:
+            return {
+                "min_token_score": 0.96,
+                "min_fuzzy_score": 96.0,
+                "ambiguity_gap": 4.0,
+            }
+        if token_len <= 6:
+            return {
+                "min_token_score": 0.91,
+                "min_fuzzy_score": 92.0,
+                "ambiguity_gap": 3.0,
+            }
+        return {
+            "min_token_score": 0.89,
+            "min_fuzzy_score": 90.0,
+            "ambiguity_gap": 2.5,
+        }
+
+    def _multi_token_thresholds(self, item_type: str, query_token_count: int) -> Dict[str, float]:
+        if item_type == "ingredient":
+            if query_token_count == 2:
+                return {
+                    "min_query_coverage": 0.90,
+                    "min_alias_precision": 0.80,
+                    "min_fuzzy_score": 84.0,
+                    "ambiguity_gap": 1.5,
+                }
+            return {
+                "min_query_coverage": 0.86,
+                "min_alias_precision": 0.74,
+                "min_fuzzy_score": 82.0,
+                "ambiguity_gap": 1.5,
+            }
+
+        if item_type in {"additive", "allergen"}:
+            if query_token_count == 2:
+                return {
+                    "min_query_coverage": 0.91,
+                    "min_alias_precision": 0.82,
+                    "min_fuzzy_score": 85.0,
+                    "ambiguity_gap": 1.7,
+                }
+            return {
+                "min_query_coverage": 0.88,
+                "min_alias_precision": 0.76,
+                "min_fuzzy_score": 83.0,
+                "ambiguity_gap": 1.7,
+            }
+
+        return {
+            "min_query_coverage": 0.92,
+            "min_alias_precision": 0.85,
+            "min_fuzzy_score": 88.0,
+            "ambiguity_gap": 2.0,
+        }
+
+    def _match_single_token(self, span: CandidateSpan, query_token: str) -> MatchedEntity | None:
+        if len(query_token) < 3:
+            return None
+
+        thresholds = self._single_token_thresholds(len(query_token))
+
+        raw_matches = process.extract(
+            self._fold(query_token),
+            [self._fold(alias) for alias in self.search_aliases],
+            scorer=fuzz.WRatio,
+            processor=None,
+            limit=30,
+        )
+
+        accepted = []
+
+        for _choice, fuzzy_score, index in raw_matches:
+            alias = self.search_aliases[index]
+            alias_tokens = self._tokens(alias)
+
+            if len(alias_tokens) != 1:
+                continue
+
+            alias_token = alias_tokens[0]
+            token_score = self._token_match_score(query_token, alias_token)
+
+            if token_score < thresholds["min_token_score"]:
+                continue
+
+            if float(fuzzy_score) < thresholds["min_fuzzy_score"]:
+                continue
+
+            if len(query_token) <= 6 and self._fold(query_token)[0] != self._fold(alias_token)[0]:
+                continue
+
+            records = self.lexicon.alias_map.get(alias, [])
+            for record in records:
+                accepted.append({
+                    "record": record,
+                    "alias": alias,
+                    "token_score": float(token_score),
+                    "fuzzy_score": float(fuzzy_score),
+                    "priority": self._candidate_priority(record, span.section_type),
+                    "ambiguity_gap": float(thresholds["ambiguity_gap"]),
+                })
+
+        if not accepted:
+            return None
+
+        accepted.sort(
+            key=lambda item: (
+                item["token_score"],
+                item["priority"],
+                item["fuzzy_score"],
+                -len(item["alias"]),
+            ),
+            reverse=True,
+        )
+
+        best = accepted[0]
+
+        if len(accepted) > 1:
+            second = accepted[1]
+            best_id = best["record"].get("id", "")
+            second_id = second["record"].get("id", "")
+
+            if best_id != second_id:
+                fuzzy_gap = best["fuzzy_score"] - second["fuzzy_score"]
+                token_gap = best["token_score"] - second["token_score"]
+
+                if fuzzy_gap < best["ambiguity_gap"] and token_gap < 0.05:
+                    return None
+
+        record = best["record"]
+        return MatchedEntity(
+            item_id=record["id"],
+            name=record["name"],
+            item_type=record["item_type"],
+            risk_level=record["risk_level"],
+            description=record["description"],
+            matched_key=best["alias"],
+            raw_query=span.raw_text,
+            match_type="fuzzy_recovery",
+            match_score=int(round(best["fuzzy_score"])),
+            polarity=span.polarity,
+            source_section=span.section_type,
+            source_text=span.evidence,
+        )
+
+    def _match_multi_token(self, span: CandidateSpan, query: str, query_tokens: List[str]) -> MatchedEntity | None:
+        raw_matches = process.extract(
+            self._fold(query),
+            [self._fold(alias) for alias in self.search_aliases],
+            scorer=fuzz.WRatio,
+            processor=None,
+            limit=40,
+        )
+
+        accepted = []
+
+        for _choice, fuzzy_score, index in raw_matches:
+            alias = self.search_aliases[index]
+            alias_tokens = self._tokens(alias)
+
+            if not alias_tokens:
+                continue
+
+            records = self.lexicon.alias_map.get(alias, [])
+            if not records:
+                continue
+
+            for record in records:
+                item_type = record.get("item_type", "")
+                th = self._multi_token_thresholds(item_type, len(query_tokens))
+
+                query_coverage, alias_precision, strong_anchor_ratio, min_query_token_score = self._best_token_alignment(
+                    query_tokens,
+                    alias_tokens,
+                )
+
+                special_two_token_ok = (
+                    len(query_tokens) == 2
+                    and query_coverage >= 0.88
+                    and alias_precision >= 0.88
+                    and strong_anchor_ratio >= 0.50
+                    and min_query_token_score >= 0.79
+                )
+
+                if not special_two_token_ok:
+                    if query_coverage < th["min_query_coverage"]:
+                        continue
+
+                    if alias_precision < th["min_alias_precision"]:
+                        continue
+
+                if float(fuzzy_score) < th["min_fuzzy_score"]:
+                    continue
+
+                if strong_anchor_ratio == 0.0 and query_coverage < 0.95:
+                    continue
+
+                accepted.append({
+                    "record": record,
+                    "alias": alias,
+                    "fuzzy_score": float(fuzzy_score),
+                    "query_coverage": float(query_coverage),
+                    "alias_precision": float(alias_precision),
+                    "strong_anchor_ratio": float(strong_anchor_ratio),
+                    "min_query_token_score": float(min_query_token_score),
+                    "priority": self._candidate_priority(record, span.section_type),
+                    "ambiguity_gap": float(th["ambiguity_gap"]),
+                })
+
+        if not accepted:
+            return None
+
+        accepted.sort(
+            key=lambda item: (
+                item["query_coverage"],
+                item["alias_precision"],
+                item["min_query_token_score"],
+                item["strong_anchor_ratio"],
+                item["priority"],
+                item["fuzzy_score"],
+                -len(item["alias"]),
+            ),
+            reverse=True,
+        )
+
+        best = accepted[0]
+
+        if len(accepted) > 1:
+            second = accepted[1]
+
+            best_id = best["record"].get("id", "")
+            second_id = second["record"].get("id", "")
+
+            if best_id != second_id:
+                fuzzy_gap = best["fuzzy_score"] - second["fuzzy_score"]
+                coverage_gap = best["query_coverage"] - second["query_coverage"]
+                precision_gap = best["alias_precision"] - second["alias_precision"]
+                min_token_gap = best["min_query_token_score"] - second["min_query_token_score"]
+
+                if (
+                    fuzzy_gap < best["ambiguity_gap"]
+                    and coverage_gap < 0.04
+                    and precision_gap < 0.05
+                    and min_token_gap < 0.05
+                ):
+                    return None
+
+        record = best["record"]
+        return MatchedEntity(
+            item_id=record["id"],
+            name=record["name"],
+            item_type=record["item_type"],
+            risk_level=record["risk_level"],
+            description=record["description"],
+            matched_key=best["alias"],
+            raw_query=span.raw_text,
+            match_type="fuzzy_recovery",
+            match_score=int(round(best["fuzzy_score"])),
+            polarity=span.polarity,
+            source_section=span.section_type,
+            source_text=span.evidence,
+        )
+
+    def match_span(self, span: CandidateSpan) -> MatchedEntity | None:
+        query = self._normalize(span.normalized_text or span.raw_text)
+        query_tokens = self._tokens(query)
+
+        if not query or not query_tokens:
+            return None
+
+        if len(query_tokens) == 1:
+            return self._match_single_token(span, query_tokens[0])
+
+        return self._match_multi_token(span, query, query_tokens)

@@ -1,0 +1,280 @@
+from __future__ import annotations
+
+from typing import Dict, List, Tuple
+
+from rapidfuzz import fuzz, process
+
+from ..preprocessing.normalize import ascii_fold, normalize_for_matching
+from ..schemas import CandidateSpan, MatchedEntity
+from .lexicon import MasterLexicon, TYPE_PRIORITY_BY_SECTION, TYPE_PRIORITY_DEFAULT
+
+STOP_TOKENS = {
+    "ve", "veya", "ile", "icin", "için",
+    "icindekiler", "içindekiler", "ingredients", "ingredient",
+    "eser", "iz", "miktarda", "contains", "free", "from",
+}
+
+
+class FuzzyRecoveryMatcher:
+    def __init__(self, lexicon: MasterLexicon):
+        self.lexicon = lexicon
+        self.search_aliases: List[str] = list(self.lexicon.alias_map.keys())
+
+    def _normalize(self, text: str) -> str:
+        return normalize_for_matching(text or "")
+
+    def _fold(self, text: str) -> str:
+        return ascii_fold(text or "")
+
+    def _tokens(self, text: str) -> List[str]:
+        normalized = self._fold(self._normalize(text))
+        tokens = []
+        for token in normalized.split():
+            if len(token) < 2:
+                continue
+            if token in STOP_TOKENS:
+                continue
+            tokens.append(token)
+        return tokens
+
+    def _token_match_score(self, query_token: str, alias_token: str) -> float:
+        q = self._fold(query_token)
+        a = self._fold(alias_token)
+
+        if not q or not a:
+            return 0.0
+
+        if q == a:
+            return 1.0
+
+        # Ana karakter benzerliği
+        wr = fuzz.WRatio(q, a) / 100.0
+
+        # Prefix ve suffix desteği
+        prefix_len = 0
+        for qc, ac in zip(q, a):
+            if qc == ac:
+                prefix_len += 1
+            else:
+                break
+
+        suffix_len = 0
+        for qc, ac in zip(q[::-1], a[::-1]):
+            if qc == ac:
+                suffix_len += 1
+            else:
+                break
+
+        prefix_bonus = min(prefix_len, 4) / 4.0
+        suffix_bonus = min(suffix_len, 3) / 3.0
+
+        # Uzunluk cezası: çok farklıysa baskıla
+        length_penalty = abs(len(q) - len(a)) / max(len(q), len(a), 1)
+
+        # Kombine skor
+        score = (0.72 * wr) + (0.18 * prefix_bonus) + (0.10 * suffix_bonus) - (0.12 * length_penalty)
+
+        # Çok kısa tokenlarda riskli davran
+        if min(len(q), len(a)) <= 3:
+            if q == a:
+                return 1.0
+            return 0.0
+
+        return max(0.0, min(score, 1.0))
+
+    def _best_token_alignment(self, query_tokens: List[str], alias_tokens: List[str]) -> Tuple[float, float, float]:
+        if not query_tokens or not alias_tokens:
+            return 0.0, 0.0, 0.0
+
+        query_match_scores = []
+        for qtok in query_tokens:
+            best = 0.0
+            for atok in alias_tokens:
+                best = max(best, self._token_match_score(qtok, atok))
+            query_match_scores.append(best)
+
+        alias_match_scores = []
+        for atok in alias_tokens:
+            best = 0.0
+            for qtok in query_tokens:
+                best = max(best, self._token_match_score(qtok, atok))
+            alias_match_scores.append(best)
+
+        query_coverage = sum(query_match_scores) / len(query_match_scores)
+        alias_precision = sum(alias_match_scores) / len(alias_match_scores)
+        exactish_ratio = sum(1 for x in query_match_scores if x >= 0.995) / len(query_match_scores)
+
+        return query_coverage, alias_precision, exactish_ratio
+
+    def _thresholds(self, item_type: str, query_token_count: int) -> Dict[str, float]:
+        if item_type == "ingredient":
+            if query_token_count == 1:
+                return {
+                    "min_query_coverage": 0.985,
+                    "min_alias_precision": 0.985,
+                    "min_fuzzy_score": 97.0,
+                    "ambiguity_gap": 2.5,
+                }
+            if query_token_count == 2:
+                return {
+                    "min_query_coverage": 0.92,
+                    "min_alias_precision": 0.84,
+                    "min_fuzzy_score": 89.0,
+                    "ambiguity_gap": 2.0,
+                }
+            return {
+                "min_query_coverage": 0.88,
+                "min_alias_precision": 0.78,
+                "min_fuzzy_score": 86.0,
+                "ambiguity_gap": 1.8,
+            }
+
+        if item_type == "additive":
+            return {
+                "min_query_coverage": 0.90 if query_token_count > 1 else 0.985,
+                "min_alias_precision": 0.82 if query_token_count > 1 else 0.985,
+                "min_fuzzy_score": 88.0 if query_token_count > 1 else 97.0,
+                "ambiguity_gap": 2.0,
+            }
+
+        if item_type == "allergen":
+            return {
+                "min_query_coverage": 0.90 if query_token_count > 1 else 0.985,
+                "min_alias_precision": 0.82 if query_token_count > 1 else 0.985,
+                "min_fuzzy_score": 88.0 if query_token_count > 1 else 97.0,
+                "ambiguity_gap": 2.0,
+            }
+
+        return {
+            "min_query_coverage": 0.95,
+            "min_alias_precision": 0.90,
+            "min_fuzzy_score": 94.0,
+            "ambiguity_gap": 2.5,
+        }
+
+    def _candidate_priority(self, record: Dict[str, str], section_type: str) -> int:
+        section_priority = TYPE_PRIORITY_BY_SECTION.get(section_type, TYPE_PRIORITY_DEFAULT)
+        item_type = record.get("item_type", "")
+        return section_priority.get(item_type, 0)
+
+    def match_span(self, span: CandidateSpan) -> MatchedEntity | None:
+        query = self._normalize(span.normalized_text or span.raw_text)
+        query_tokens = self._tokens(query)
+
+        if not query or not query_tokens:
+            return None
+
+        # Çok kısa tek token'ları fuzzy ile zorlama
+        if len(query_tokens) == 1 and len(query_tokens[0]) < 5:
+            return None
+
+        folded_query = self._fold(query)
+
+        raw_matches = process.extract(
+            folded_query,
+            [self._fold(alias) for alias in self.search_aliases],
+            scorer=fuzz.WRatio,
+            processor=None,
+            limit=40,
+        )
+
+        accepted = []
+
+        for _choice, fuzzy_score, index in raw_matches:
+            alias = self.search_aliases[index]
+            alias_tokens = self._tokens(alias)
+
+            if not alias_tokens:
+                continue
+
+            records = self.lexicon.alias_map.get(alias, [])
+            if not records:
+                continue
+
+            for record in records:
+                item_type = record.get("item_type", "")
+                th = self._thresholds(item_type, len(query_tokens))
+
+                query_coverage, alias_precision, exactish_ratio = self._best_token_alignment(
+                    query_tokens,
+                    alias_tokens,
+                )
+
+                # Ana güvenlik kontrolleri
+                if query_coverage < th["min_query_coverage"]:
+                    continue
+
+                if alias_precision < th["min_alias_precision"]:
+                    continue
+
+                if float(fuzzy_score) < th["min_fuzzy_score"]:
+                    continue
+
+                # 2+ token query'de en az bir güçlü anchor bekle
+                if len(query_tokens) >= 2 and exactish_ratio == 0.0 and query_coverage < 0.96:
+                    continue
+
+                accepted.append({
+                    "record": record,
+                    "alias": alias,
+                    "fuzzy_score": float(fuzzy_score),
+                    "query_coverage": float(query_coverage),
+                    "alias_precision": float(alias_precision),
+                    "exactish_ratio": float(exactish_ratio),
+                    "priority": self._candidate_priority(record, span.section_type),
+                    "ambiguity_gap": float(th["ambiguity_gap"]),
+                })
+
+        if not accepted:
+            return None
+
+        accepted.sort(
+            key=lambda item: (
+                item["query_coverage"],
+                item["alias_precision"],
+                item["exactish_ratio"],
+                item["priority"],
+                item["fuzzy_score"],
+                -len(item["alias"]),
+            ),
+            reverse=True,
+        )
+
+        best = accepted[0]
+
+        if len(accepted) > 1:
+            second = accepted[1]
+
+            best_id = best["record"].get("id", "")
+            second_id = second["record"].get("id", "")
+
+            if best_id != second_id:
+                fuzzy_gap = best["fuzzy_score"] - second["fuzzy_score"]
+                coverage_gap = best["query_coverage"] - second["query_coverage"]
+                precision_gap = best["alias_precision"] - second["alias_precision"]
+
+                # Adaylar çok yakınsa hallucination riski var, hiç eşleme yapma
+                if (
+                    fuzzy_gap < best["ambiguity_gap"]
+                    and coverage_gap < 0.04
+                    and precision_gap < 0.05
+                ):
+                    return None
+
+        record = best["record"]
+        match_type = "fuzzy_recovery"
+
+        return MatchedEntity(
+            item_id=record["id"],
+            name=record["name"],
+            item_type=record["item_type"],
+            risk_level=record["risk_level"],
+            description=record["description"],
+            matched_key=best["alias"],
+            raw_query=span.raw_text,
+            match_type=match_type,
+            match_score=int(round(best["fuzzy_score"])),
+            polarity=span.polarity,
+            source_section=span.section_type,
+            source_text=span.evidence,
+        )
