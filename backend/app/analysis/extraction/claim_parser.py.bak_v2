@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+import re
+from typing import List
+
+from ..schemas import CandidateSpan, TextBlock
+from ..preprocessing.normalize import normalize_for_matching
+from ..rules.exclusion_rules import should_ignore_candidate
+
+NEGATIVE_PATTERNS = [
+    re.compile(r"(.+?)\biçermez\b", re.IGNORECASE),
+    re.compile(r"(.+?)\byoktur\b", re.IGNORECASE),
+    re.compile(r"(.+?)\bbulunmaz\b", re.IGNORECASE),
+    re.compile(r"does not contain (.+)", re.IGNORECASE),
+    re.compile(r"contains no (.+)", re.IGNORECASE),
+]
+MAY_CONTAIN_PATTERNS = [
+    re.compile(r"eser miktarda (.+?) içerebilir", re.IGNORECASE),
+    re.compile(r"iz miktarda (.+?) içerebilir", re.IGNORECASE),
+    re.compile(r"may contain (.+)", re.IGNORECASE),
+    re.compile(r"(.+?) içerebilir", re.IGNORECASE),
+]
+PRESENCE_PATTERNS = [
+    re.compile(r"(.+?) içermektedir", re.IGNORECASE),
+    re.compile(r"(.+?) içerir", re.IGNORECASE),
+    re.compile(r"contains (.+)", re.IGNORECASE),
+]
+
+
+def split_claim_items(text: str) -> List[str]:
+    text = text.strip(" -:;,.")
+    parts = re.split(r",|/|\bve\b|\band\b", text, flags=re.IGNORECASE)
+    return [part.strip(" -:;,.") for part in parts if part.strip(" -:;,.")]
+
+
+def build_spans(items: List[str], block: TextBlock, polarity: str, category_hint: str) -> List[CandidateSpan]:
+    spans: List[CandidateSpan] = []
+    for item in items:
+        if should_ignore_candidate(item):
+            continue
+        spans.append(
+            CandidateSpan(
+                raw_text=item,
+                normalized_text=normalize_for_matching(item),
+                section_type=block.section_type,
+                polarity=polarity,
+                category_hint=category_hint,
+                evidence=block.raw_text,
+            )
+        )
+    return spans
+
+
+def extract_claim_spans(block: TextBlock) -> List[CandidateSpan]:
+    text = block.raw_text
+    results: List[CandidateSpan] = []
+
+    if block.section_type == "free_from_section":
+        for pattern in NEGATIVE_PATTERNS:
+            for match in pattern.finditer(text):
+                segment = match.group(1).strip()
+                results.extend(build_spans(split_claim_items(segment), block, "absent", "ingredient"))
+        return results
+
+    if block.section_type == "may_contain_section":
+        for pattern in MAY_CONTAIN_PATTERNS:
+            for match in pattern.finditer(text):
+                segment = match.group(1).strip()
+                results.extend(build_spans(split_claim_items(segment), block, "may_contain", "allergen"))
+        return results
+
+    if block.section_type == "allergen_section":
+        lowered = text.lower()
+        if "alerjen" in lowered or "allergen" in lowered:
+            segment = re.split(r"[:.]", text, maxsplit=1)
+            target = segment[1] if len(segment) > 1 else text
+            results.extend(build_spans(split_claim_items(target), block, "present", "allergen"))
+
+        for pattern in PRESENCE_PATTERNS:
+            for match in pattern.finditer(text):
+                segment = match.group(1).strip()
+                results.extend(build_spans(split_claim_items(segment), block, "present", "allergen"))
+        return results
+
+    return results
